@@ -1,8 +1,32 @@
 package contenido;
 
+import java.util.List;
+
 public class Anime extends Contenido{
-    public Anime(Estado_emision_enum emision_state, String fecha_estreno, int id, double puntuacion, String titulo) {
-        super(emision_state, fecha_estreno, id, puntuacion, titulo);
+    private int episodios;
+
+    public Anime(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, String urL_image, Estado_vistoONo_enum vistoONo, int episodios) {
+        super(
+                id,
+                members,
+                name,
+                popularity,
+                rank,
+                score,
+                status,
+                synopsis,
+                title,
+                urL_image,
+                vistoONo);
+        this.episodios = episodios;
+    }
+
+    public int getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(int episodios) {
+        this.episodios = episodios;
     }
 
     @Override
