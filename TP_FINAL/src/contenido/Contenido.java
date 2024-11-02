@@ -28,6 +28,9 @@ public abstract class Contenido {
         this.urL_image = urL_image;
         this.vistoONo = Estado_vistoONo_enum.NO_VISTO;
     }
+    public Contenido (){
+
+    }
 
     public int getId() {
         return id;

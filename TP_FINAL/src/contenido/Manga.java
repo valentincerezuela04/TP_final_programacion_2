@@ -12,6 +12,10 @@ public class Manga extends Contenido {
         this.volumes = volumes;
     }
 
+    public Manga() {
+        super();
+    }
+
     public int getChapters() {
         return chapters;
     }

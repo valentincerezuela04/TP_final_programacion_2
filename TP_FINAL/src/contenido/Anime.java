@@ -21,6 +21,10 @@ public class Anime extends Contenido{
         this.episodios = episodios;
     }
 
+public Anime(){
+    super();
+
+};
     public int getEpisodios() {
         return episodios;
     }

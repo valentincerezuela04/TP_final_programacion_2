@@ -60,17 +60,21 @@ public class JsonUtilAnime extends JsonUtil {
     @Override
     public Object jsonToObject(JSONObject jsonObject) {
         // Obtener datos desde el JSON
-        int id = jsonObject.getInt("id");
-        String title = jsonObject.getString("title");
-        double score = jsonObject.getDouble("score");
-        String status = jsonObject.getString("status");
-        int episodes = jsonObject.getInt("episodes");
-        int members = jsonObject.getInt("members");
-        int popularity = jsonObject.getInt("popularity");
-        int rank = jsonObject.getInt("rank");
-        String synopsis = jsonObject.getString("synopsis");
-        String imageUrl = jsonObject.getString("imageUrl");
-        Estado_vistoONo_enum vistoONo = Estado_vistoONo_enum.valueOf(jsonObject.getString("vistoONo"));
+        // diferencia entre opt y get es q el get si no encuentra la key se va a romper
+        //pero el opt si no lo encuentra le va a poner un default solamente
+                int id = jsonObject.getInt("mal_id");
+                String title = jsonObject.getString("title");
+                double score = jsonObject.optDouble("score", 0.0);
+                String status = jsonObject.optString("status", "Desconocido");
+              int episodes = jsonObject.optInt("episodes", 0);
+                int members = jsonObject.optInt("members", 0);
+                int popularity = jsonObject.optInt("popularity", 0);
+                int rank = jsonObject.optInt("rank", 0);
+                String synopsis = jsonObject.optString("synopsis", "Sin sinopsis disponible");
+                String imageUrl = jsonObject.getJSONObject("images").getJSONObject("jpg").optString("image_url", "");
+// Obtener el valor de "vistoONo" con optString, que devuelve un valor por defecto si la clave no está presente
+        String vistoONoValue = jsonObject.optString("vistoONo", "NO_VISTO");
+        Estado_vistoONo_enum vistoONo = Estado_vistoONo_enum.valueOf(vistoONoValue);
 
 
         // Crear el objeto Anime
@@ -80,10 +84,10 @@ public class JsonUtilAnime extends JsonUtil {
     // Método para guardar el objeto Anime en un archivo usando JsonUtilAnime
     public static void guardarListaAnimeEnArchivo(List<Anime> anime, String archivoDestino) {
         // Usar la clase JsonUtilAnime para convertir el objeto Anime a JSON
-        JSONArray animeJson = JsonUtilAnime.listToJson(anime);  // Convertir el objeto Anime a JSON
+        JSONArray jsonObject = JsonUtilAnime.listToJson(anime);  // Convertir el objeto Anime a JSON
 
         try (FileWriter file = new FileWriter(archivoDestino, true)) {  // "true" para añadir sin sobrescribir
-            file.write(animeJson.toString(4));  // Guardar el JSON con indentación de 4 espacios
+            file.write(jsonObject.toString(4));  // Guardar el JSON con indentación de 4 espacios
             file.write(",");  // Añadir una nueva línea entre cada anime para legibilidad
             System.out.println("Anime guardado en: " + archivoDestino);
         } catch (IOException e) {

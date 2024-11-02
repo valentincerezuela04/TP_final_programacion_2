@@ -1,6 +1,6 @@
 package menu;
 
-import api.Consumiendo_api;
+import api.Get_Manga;
 import manejo_json.JsonUtil;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
@@ -29,8 +29,13 @@ public class Main {
 //            System.out.println(anime);
 //        }
 
+//
+//      Consumiendo_api.obtenerYGuardarDataFiltrada("prueba.json");
+//        System.out.println(JsonUtil.readJsonFromFileArray("prueba.json"));
 
-      Consumiendo_api.obtenerYGuardarDataFiltrada("prueba.json");
-        System.out.println(JsonUtil.readJsonFromFileArray("prueba.json"));
+//        System.out.println(Get_Manga.getDataApi());
+        Get_Manga getManga = new Get_Manga();
+        getManga.obtenerYGuardarDataFiltrada("pruebaManga.json");
+        System.out.println(JsonUtil.readJsonArrayFromFile("pruebaManga.json"));
     }
 }
