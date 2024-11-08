@@ -1,39 +1,35 @@
 package contenido;
 
 import java.util.Objects;
-import java.util.PrimitiveIterator;
 
 public abstract class Contenido {
     private int id;
-    private String titulo;
-    private String fecha_estreno ;
-    private double puntuacion;
-    private Estado_emision_enum emision_state;
+    private String name;
+    private String urL_image;
+    private String title;
+    private String status;
+    private double score;
+    private int rank;
+    private int popularity;
+    private int members;
+    private String synopsis;
     private Estado_vistoONo_enum vistoONo;
 
-    public Contenido(Estado_emision_enum emision_state, String fecha_estreno, int id, double puntuacion, String titulo) {
-        this.emision_state = emision_state;
-        this.fecha_estreno = fecha_estreno;
+    public Contenido(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, String urL_image, Estado_vistoONo_enum vistoONo) {
         this.id = id;
-        this.puntuacion = puntuacion;
-        this.titulo = titulo;
+        this.members = members;
+        this.name = name;
+        this.popularity = popularity;
+        this.rank = rank;
+        this.score = score;
+        this.status = status;
+        this.synopsis = synopsis;
+        this.title = title;
+        this.urL_image = urL_image;
         this.vistoONo = Estado_vistoONo_enum.NO_VISTO;
     }
+    public Contenido (){
 
-    public Estado_emision_enum getEmision_state() {
-        return emision_state;
-    }
-
-    public void setEmision_state(Estado_emision_enum emision_state) {
-        this.emision_state = emision_state;
-    }
-
-    public String getFecha_estreno() {
-        return fecha_estreno;
-    }
-
-    public void setFecha_estreno(String fecha_estreno) {
-        this.fecha_estreno = fecha_estreno;
     }
 
     public int getId() {
@@ -44,20 +40,76 @@ public abstract class Contenido {
         this.id = id;
     }
 
-    public double getPuntuacion() {
-        return puntuacion;
+    public int getMembers() {
+        return members;
     }
 
-    public void setPuntuacion(double puntuacion) {
-        this.puntuacion = puntuacion;
+    public void setMembers(int members) {
+        this.members = members;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public String getName() {
+        return name;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(int popularity) {
+        this.popularity = popularity;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getSynopsis() {
+        return synopsis;
+    }
+
+    public void setSynopsis(String synopsis) {
+        this.synopsis = synopsis;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getUrL_image() {
+        return urL_image;
+    }
+
+    public void setUrL_image(String urL_image) {
+        this.urL_image = urL_image;
     }
 
     public Estado_vistoONo_enum getVistoONo() {
@@ -66,31 +118,6 @@ public abstract class Contenido {
 
     public void setVistoONo(Estado_vistoONo_enum vistoONo) {
         this.vistoONo = vistoONo;
-    }
-
-    @Override
-    public String toString() {
-        return "Contenido{" +
-                "emision_state=" + emision_state +
-                ", id=" + id +
-                ", titulo='" + titulo + '\'' +
-                ", fecha_estreno='" + fecha_estreno + '\'' +
-                ", puntuacion=" + puntuacion +
-                ", vistoONo=" + vistoONo +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Contenido contenido = (Contenido) o;
-        return id == contenido.id && Objects.equals(titulo, contenido.titulo);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, titulo);
     }
 
     public abstract void visto_o_no();
