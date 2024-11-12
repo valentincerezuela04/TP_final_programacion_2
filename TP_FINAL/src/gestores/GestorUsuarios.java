@@ -21,6 +21,10 @@ public class GestorUsuarios {
             usuariosRegistrados = jsonUtilUsuario.cargarUsuariosDesdeArchivo();
         } catch (IOException e) {
             System.out.println("Error al cargar los usuarios desde el archivo: " + e.getMessage());
+        } catch (ContrasenaInvalidaException e) {
+            System.out.println("Error de contraseña inválida: " + e.getMessage());
+        } catch (EmailInvalidoException e) {
+            System.out.println("Error de email inválido: " + e.getMessage());
         }
     }
 

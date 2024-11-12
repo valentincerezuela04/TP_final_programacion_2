@@ -24,9 +24,9 @@ public class Main {
 
         try {
             // Crear nuevos usuarios
-            Usuario nuevoUsuario = new Usuario("Pablo", "Contraseña1", "pablo@gmail.com");
-            Usuario nuevoUsuario1 = new Usuario("Santiago", "Contraseña2", "santiago@gmail.com");
-            Usuario nuevoUsuario2 = new Usuario("Emma", "Contraseña3", "emma@gmail.com");
+            Usuario nuevoUsuario = new Usuario("Seba", "Contraseña1", "seba@gmail.com");
+            Usuario nuevoUsuario1 = new Usuario("Santiago", "Contraseña2", "juli@gmail.com");
+            Usuario nuevoUsuario2 = new Usuario("Jere", "Contraseña3", "jere@gmail.com");
             System.out.println("ID del nuevo usuario: " + nuevoUsuario.getId());
             System.out.println("ID del nuevo usuario: " + nuevoUsuario1.getId());
             System.out.println("ID del nuevo usuario: " + nuevoUsuario2.getId());
