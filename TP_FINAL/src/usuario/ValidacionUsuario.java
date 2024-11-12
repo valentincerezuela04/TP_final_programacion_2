@@ -12,7 +12,7 @@ public class ValidacionUsuario {
     * Sin espacios
     * Sin caracteres especiales (excepto el punto)
     */
-    private static final String REGLA_CONTRASENA = "^(?=.*[A-Z])(?=.*\\d)(?=\\S+$)[a-zA-Z0-9.]{8,}$";
+    private static final String REGLA_CONTRASENA = "^(?=.*[A-Z])(?=.*\\d)(?=\\S+$)[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ.]{8,}$";
 
     // String que contiene las reglas tipicas de una direccion e-mail.
     private static final String REGLA_EMAIL = "^[\\w-\\.]+@[\\w-]+\\.[a-z]{2,}$";
@@ -31,8 +31,9 @@ public class ValidacionUsuario {
         if (contraseña == null) {
             return false; // No se permite una contraseña nula
         }
-        return Pattern.matches(REGLA_CONTRASENA, contraseña); //Llamada al metodo .matches() para realizar la comprobacion
+        return Pattern.matches(REGLA_CONTRASENA, contraseña);
     }
+
 
     public static boolean esEmailValido(String email) {
         if (email == null) {

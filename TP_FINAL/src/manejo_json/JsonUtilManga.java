@@ -1,14 +1,12 @@
 package manejo_json;
 
 import contenido.Manga;
-import contenido.Estado_vistoONo_enum;
-import contenido.Genre;
+import contenido.EstadoVisto;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JsonUtilManga extends JsonUtil {
@@ -53,7 +51,7 @@ public class JsonUtilManga extends JsonUtil {
 
         // Obtener el valor de "vistoONo" con optString y asignar el valor predeterminado "NO_VISTO" si no está presente
         String vistoONoValue = jsonObject.optString("vistoONo", "NO_VISTO");
-        Estado_vistoONo_enum vistoONo = Estado_vistoONo_enum.valueOf(vistoONoValue);
+        EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoValue);
 
         // Crear y devolver el objeto Manga con los datos extraídos
         return new Manga(id, members, title, popularity, rank, score, status, synopsis, title, imageUrl, vistoONo, chapters, volumes);

@@ -1,5 +1,9 @@
 package usuario;
 
+import excepciones.ContrasenaInvalidaException;
+import excepciones.EmailInvalidoException;
+import seguridad.EncriptacionUtil;
+
 public class Usuario {
 
     private static int contadorId = 1;
@@ -11,18 +15,36 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(String nombre, String contraseña, String email) {
+    public Usuario(String nombre, String contraseña, String email) throws ContrasenaInvalidaException, EmailInvalidoException {
         this.id = contadorId++;
         this.nombre = nombre;
-        if (ValidacionUsuario.esContraseñaValida(contraseña)) { //Verifica si la contraseña es valida
-            this.contraseña = contraseña;
+        if (ValidacionUsuario.esContraseñaValida(contraseña)) {
+            // Encriptar la contraseña antes de guardarla
+            this.contraseña = EncriptacionUtil.encriptar(contraseña);
         } else {
-            throw new IllegalArgumentException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
+            throw new ContrasenaInvalidaException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
         }
-        if (ValidacionUsuario.esEmailValido(email)) { //Verifica si el email es valido
+        if (ValidacionUsuario.esEmailValido(email)) {
             this.email = email;
         } else {
-            throw new IllegalArgumentException("Formato de email inválido."); //Pasar a una excepcion personalizada
+            throw new EmailInvalidoException("Formato de email inválido.");
+        }
+    }
+
+    public void setContraseña(String contraseña) throws ContrasenaInvalidaException {
+        if (ValidacionUsuario.esContraseñaValida(contraseña)) {
+            // Encriptar la nueva contraseña antes de guardarla
+            this.contraseña = EncriptacionUtil.encriptar(contraseña);
+        } else {
+            throw new ContrasenaInvalidaException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
+        }
+    }
+
+    public void setEmail(String email) throws EmailInvalidoException {
+        if (ValidacionUsuario.esEmailValido(email)) {
+            this.email = email;
+        } else {
+            throw new EmailInvalidoException("Formato de email inválido.");
         }
     }
 
@@ -34,44 +56,27 @@ public class Usuario {
         return nombre;
     }
 
-    public void setContraseña(String contraseña) {
-        if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = contraseña;
-        } else {
-            //Cambiar por la excepcion creada mas arriba
-            throw new IllegalArgumentException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
-        }
+    public String getContraseña() {
+        return contraseña;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        if (ValidacionUsuario.esEmailValido(email)) {
-            this.email = email;
-        } else {
-            System.out.println("Formato de email inválido."); //Cambiar por la excepcion creada mas arriba
-        }
-    }
-
-    public boolean verificarContraseña(String contraseña) {
-        return ValidacionUsuario.verificarContraseña(this.contraseña, contraseña);
-    }
-
-    public void cambiarContraseña(String contraseñaAntigua, String nuevaContraseña) {
-        if (ValidacionUsuario.verificarContraseña(this.contraseña, contraseñaAntigua)) {
+    public void cambiarContraseña(String contraseñaAntigua, String nuevaContraseña) throws ContrasenaInvalidaException {
+        // Verificar la contraseña encriptada
+        if (ValidacionUsuario.verificarContraseña(this.contraseña, EncriptacionUtil.encriptar(contraseñaAntigua))) {
             if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
-                this.contraseña = nuevaContraseña;
+                // Encriptar la nueva contraseña antes de guardarla
+                this.contraseña = EncriptacionUtil.encriptar(nuevaContraseña);
             } else {
-                System.out.println("Nueva contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número y no contenga espacios o caracteres especiales.");
-                //Pasar a una excepcion personalizada
+                throw new ContrasenaInvalidaException("Nueva contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número y no contenga espacios o caracteres especiales.");
             }
         } else {
-            System.out.println("Contraseña incorrecta");
+            throw new ContrasenaInvalidaException("Contraseña incorrecta");
         }
     }
-
 
     @Override
     public String toString() {
@@ -79,6 +84,6 @@ public class Usuario {
                 "email='" + email + '\'' +
                 ", id=" + id +
                 ", nombre='" + nombre + '\'' +
-                '}';
+                '}'; // No se muestra la contraseña por razones de seguridad
     }
 }

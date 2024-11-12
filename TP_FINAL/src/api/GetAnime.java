@@ -13,7 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 
-public class Get_Anime implements IApis{
+public class GetAnime implements IApis{
     @Override
     public  String getDataApi() {
         try {

@@ -1,8 +1,6 @@
 package api;
 
-import contenido.Anime;
 import contenido.Manga;
-import manejo_json.JsonUtilAnime;
 import manejo_json.JsonUtilManga;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,7 +12,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Get_Manga implements IApis {
+public class GetManga implements IApis {
 
         @Override
         public  String getDataApi() {

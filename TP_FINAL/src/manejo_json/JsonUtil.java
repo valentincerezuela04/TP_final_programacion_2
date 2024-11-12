@@ -1,5 +1,7 @@
 package manejo_json;
 
+import excepciones.ContrasenaInvalidaException;
+import excepciones.EmailInvalidoException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -55,5 +57,5 @@ public abstract class JsonUtil {
     // Métodos abstractos para ser implementados por las subclases
     public abstract JSONObject objectToJson(Object obj);
 
-    public abstract Object jsonToObject(JSONObject jsonObject);
+    public abstract Object jsonToObject(JSONObject jsonObject) throws ContrasenaInvalidaException, EmailInvalidoException;
 }

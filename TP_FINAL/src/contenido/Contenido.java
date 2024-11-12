@@ -1,7 +1,5 @@
 package contenido;
 
-import java.util.Objects;
-
 public abstract class Contenido {
     private int id;
     private String name;
@@ -13,9 +11,9 @@ public abstract class Contenido {
     private int popularity;
     private int members;
     private String synopsis;
-    private Estado_vistoONo_enum vistoONo;
+    private EstadoVisto vistoONo;
 
-    public Contenido(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, String urL_image, Estado_vistoONo_enum vistoONo) {
+    public Contenido(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, String urL_image, EstadoVisto vistoONo) {
         this.id = id;
         this.members = members;
         this.name = name;
@@ -26,7 +24,7 @@ public abstract class Contenido {
         this.synopsis = synopsis;
         this.title = title;
         this.urL_image = urL_image;
-        this.vistoONo = Estado_vistoONo_enum.NO_VISTO;
+        this.vistoONo = EstadoVisto.NO_VISTO;
     }
     public Contenido (){
 
@@ -112,11 +110,11 @@ public abstract class Contenido {
         this.urL_image = urL_image;
     }
 
-    public Estado_vistoONo_enum getVistoONo() {
+    public EstadoVisto getVistoONo() {
         return vistoONo;
     }
 
-    public void setVistoONo(Estado_vistoONo_enum vistoONo) {
+    public void setVistoONo(EstadoVisto vistoONo) {
         this.vistoONo = vistoONo;
     }
 
