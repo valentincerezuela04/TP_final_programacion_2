@@ -1,56 +1,60 @@
 package manejo_json;
 
-import excepciones.ContrasenaInvalidaException;
-import excepciones.EmailInvalidoException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import usuario.Usuario;
-import seguridad.EncriptacionUtil;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 
-public class JsonUtilUsuario extends JsonUtil {
+public class JsonUtilUsuario {
 
-    // Convierte un objeto Usuario a JSONObject
-    @Override
-    public JSONObject objectToJson(Object obj) {
-        Usuario usuario = (Usuario) obj;
-        JSONObject json = new JSONObject();
+    private static final String ARCHIVO_USUARIOS = "usuarios.json"; // Archivo donde se guardarán los usuarios
 
-        json.put("id", usuario.getId());
-        json.put("nombre", usuario.getNombre());
-        json.put("email", usuario.getEmail());
-
-        // Encriptamos la contraseña antes de guardarla
-        String contrasenaEncriptada = EncriptacionUtil.encriptar(usuario.getContraseña());
-        json.put("contraseña", contrasenaEncriptada);
-
-        return json;
-    }
-
-    @Override
-    public Object jsonToObject(JSONObject jsonObject) throws ContrasenaInvalidaException, EmailInvalidoException {
-        String nombre = jsonObject.getString("nombre");
-        String email = jsonObject.optString("email", "email@default.com");
-        String contraseña = jsonObject.optString("contraseña", "defaultPass");
-
-        // Se devuelve el usuario sin verificar la contraseña, porque la encriptación ya se maneja
-        return new Usuario(nombre, contraseña, email);
-    }
-
-    // Método para guardar usuarios en un archivo JSON
+    // Guardar los usuarios en un archivo
     public void guardarUsuariosEnArchivo(HashMap<String, Usuario> usuarios) throws IOException {
-        JSONObject jsonUsuarios = new JSONObject();
+        JSONArray usuariosJson = new JSONArray();
         for (Usuario usuario : usuarios.values()) {
-            jsonUsuarios.put(usuario.getNombre(), objectToJson(usuario));
+            JSONObject usuarioJson = new JSONObject();
+            usuarioJson.put("id", usuario.getId());
+            usuarioJson.put("nombre", usuario.getNombre());
+            usuarioJson.put("contraseña", usuario.getContraseña());
+            usuarioJson.put("email", usuario.getEmail());
+            usuariosJson.put(usuarioJson);
         }
 
-        try (FileWriter file = new FileWriter("usuarios.json")) {
-            file.write(jsonUsuarios.toString(4));
-            file.flush();
-        } catch (IOException e) {
-            throw new IOException("Error al guardar usuarios en archivo JSON", e);
+        // Guardar usuarios
+        try (FileWriter file = new FileWriter(ARCHIVO_USUARIOS)) {
+            file.write(usuariosJson.toString(4));
         }
+    }
+
+    // Leer los usuarios desde el archivo
+    public HashMap<String, Usuario> cargarUsuariosDesdeArchivo() throws IOException {
+        HashMap<String, Usuario> usuarios = new HashMap<>();
+
+        File archivoUsuarios = new File(ARCHIVO_USUARIOS);
+        if (archivoUsuarios.exists()) {
+            String contenido = new String(java.nio.file.Files.readAllBytes(archivoUsuarios.toPath()));
+            JSONArray usuariosJson = new JSONArray(contenido);
+            for (int i = 0; i < usuariosJson.length(); i++) {
+                JSONObject usuarioJson = usuariosJson.getJSONObject(i);
+                String nombre = usuarioJson.getString("nombre");
+                String contraseña = usuarioJson.getString("contraseña");
+                String email = usuarioJson.getString("email");
+                int id = usuarioJson.getInt("id");
+
+                // Crear el usuario y agregarlo
+                try {
+                    Usuario usuario = new Usuario(nombre, contraseña, email);
+                    usuario.setId(id);  // Establecer el id correcto
+                    usuarios.put(nombre, usuario);
+                } catch (Exception e) {
+                    e.printStackTrace(); // Si algo sale mal con un usuario, lo ignoramos
+                }
+            }
+        }
+
+        return usuarios;
     }
 }

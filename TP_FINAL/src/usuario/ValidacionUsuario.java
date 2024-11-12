@@ -1,5 +1,8 @@
 package usuario;
 
+import excepciones.ContrasenaInvalidaException;
+import excepciones.EmailInvalidoException;
+
 import java.util.regex.Pattern; //Importacion de la clase 'Pattern', ideal para comprobar si una cadena cumple con una expresión regular
 
 
@@ -27,19 +30,18 @@ public class ValidacionUsuario {
         return contraseñaGuardada.equals(contraseñaIngresada);
     }
 
-    public static boolean esContraseñaValida(String contraseña) {
-        if (contraseña == null) {
-            return false; // No se permite una contraseña nula
+    public static boolean esEmailValido(String email) throws EmailInvalidoException {
+        if (email == null || !email.contains("@")) {
+            throw new EmailInvalidoException("El email no es válido.");
         }
-        return Pattern.matches(REGLA_CONTRASENA, contraseña);
+        return true;
     }
 
-
-    public static boolean esEmailValido(String email) {
-        if (email == null) {
-            return false;
+    public static boolean esContraseñaValida(String contraseña) throws ContrasenaInvalidaException {
+        if (contraseña == null || contraseña.length() < 6) {
+            throw new ContrasenaInvalidaException("La contraseña debe tener al menos 6 caracteres.");
         }
-        return Pattern.matches(REGLA_EMAIL, email);
+        return true;
     }
 }
 

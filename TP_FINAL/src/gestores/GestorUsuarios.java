@@ -16,6 +16,12 @@ public class GestorUsuarios {
     public GestorUsuarios() {
         usuariosRegistrados = new HashMap<>();
         jsonUtilUsuario = new JsonUtilUsuario();
+
+        try {
+            usuariosRegistrados = jsonUtilUsuario.cargarUsuariosDesdeArchivo();
+        } catch (IOException e) {
+            System.out.println("Error al cargar los usuarios desde el archivo: " + e.getMessage());
+        }
     }
 
     public HashMap<String, Usuario> getUsuariosRegistrados() {
@@ -23,28 +29,26 @@ public class GestorUsuarios {
     }
 
     // Método para registrar un nuevo usuario
-    public Usuario registrarUsuario(String nombre, String contraseña, String email) {
-        if (!usuariosRegistrados.containsKey(nombre)) {
-            if (!ValidacionUsuario.esEmailValido(email)) {
-                System.out.println("Email no válido.");
-                return null;
-            }
-            if (!ValidacionUsuario.esContraseñaValida(contraseña)) {
-                System.out.println("Contraseña no válida. Debe cumplir las reglas de validación.");
-                return null;
-            }
-
+    public Usuario registrarUsuario(Usuario usuario) {
+        if (!usuariosRegistrados.containsKey(usuario.getNombre())) {
             try {
-                Usuario nuevoUsuario = new Usuario(nombre, contraseña, email);
-                usuariosRegistrados.put(nombre, nuevoUsuario);
+                // Validar el email y la contraseña
+                ValidacionUsuario.esEmailValido(usuario.getEmail());
+                ValidacionUsuario.esContraseñaValida(usuario.getContraseña());
+
+                usuariosRegistrados.put(usuario.getNombre(), usuario);
+
+                // Guardar los usuarios en el archivo
                 try {
                     jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
                 } catch (IOException e) {
                     System.out.println("Error al guardar el usuario: " + e.getMessage());
                 }
-                return nuevoUsuario;
-            } catch (ContrasenaInvalidaException | EmailInvalidoException e) {
-                System.out.println("Error al registrar el usuario: " + e.getMessage());
+
+                return usuario;
+
+            } catch (EmailInvalidoException | ContrasenaInvalidaException e) {
+                System.out.println("Error de validación: " + e.getMessage());
                 return null;
             }
         } else {
@@ -52,7 +56,6 @@ public class GestorUsuarios {
             return null;
         }
     }
-
 
     // Método para iniciar sesión
     public Usuario iniciarSesion(String nombre, String contraseña) {

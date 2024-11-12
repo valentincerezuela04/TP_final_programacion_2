@@ -15,15 +15,19 @@ public class Usuario {
     public Usuario() {
     }
 
+    // Constructor con parámetros
     public Usuario(String nombre, String contraseña, String email) throws ContrasenaInvalidaException, EmailInvalidoException {
-        this.id = contadorId++;
+        this.id = contadorId++;  // Usamos el método para asignar el ID
         this.nombre = nombre;
+
+        // Validar y encriptar la contraseña
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            // Encriptar la contraseña antes de guardarla
             this.contraseña = EncriptacionUtil.encriptar(contraseña);
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
         }
+
+        // Validar el email
         if (ValidacionUsuario.esEmailValido(email)) {
             this.email = email;
         } else {
@@ -31,12 +35,16 @@ public class Usuario {
         }
     }
 
+    // Métodos de la clase Usuario
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setContraseña(String contraseña) throws ContrasenaInvalidaException {
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            // Encriptar la nueva contraseña antes de guardarla
             this.contraseña = EncriptacionUtil.encriptar(contraseña);
         } else {
-            throw new ContrasenaInvalidaException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
+            throw new ContrasenaInvalidaException("Contraseña no válida.");
         }
     }
 
@@ -68,10 +76,9 @@ public class Usuario {
         // Verificar la contraseña encriptada
         if (ValidacionUsuario.verificarContraseña(this.contraseña, EncriptacionUtil.encriptar(contraseñaAntigua))) {
             if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
-                // Encriptar la nueva contraseña antes de guardarla
                 this.contraseña = EncriptacionUtil.encriptar(nuevaContraseña);
             } else {
-                throw new ContrasenaInvalidaException("Nueva contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número y no contenga espacios o caracteres especiales.");
+                throw new ContrasenaInvalidaException("Nueva contraseña no válida.");
             }
         } else {
             throw new ContrasenaInvalidaException("Contraseña incorrecta");

@@ -9,39 +9,38 @@ import manejo_json.JsonUtil;
 import manejo_json.JsonUtilUsuario;
 import usuario.Usuario;
 
+import java.io.IOException;
+
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
     public static void main(String[] args) {
 
-        String nombre = "juan123";
-        String contraseña = "Contrasena1";  // Contraseña válida
-        String email = "juan@example.com"; // Email válido
+        // Crear un objeto JsonUtilUsuario para gestionar los archivos JSON
+        JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
 
+        // Cargar los usuarios desde los archivos
         GestorUsuarios gestorUsuarios = new GestorUsuarios();
 
         try {
-            // Intentamos registrar al usuario
-            Usuario nuevoUsuario = new Usuario(nombre, contraseña, email);
+            // Crear nuevos usuarios
+            Usuario nuevoUsuario = new Usuario("Pablo", "Contraseña1", "pablo@gmail.com");
+            Usuario nuevoUsuario1 = new Usuario("Santiago", "Contraseña2", "santiago@gmail.com");
+            Usuario nuevoUsuario2 = new Usuario("Emma", "Contraseña3", "emma@gmail.com");
+            System.out.println("ID del nuevo usuario: " + nuevoUsuario.getId());
+            System.out.println("ID del nuevo usuario: " + nuevoUsuario1.getId());
+            System.out.println("ID del nuevo usuario: " + nuevoUsuario2.getId());
 
-            // Si el registro es exitoso, se guarda el usuario en el archivo JSON
-            JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
-            gestorUsuarios.registrarUsuario(nombre, contraseña, email);
-            jsonUtilUsuario.guardarUsuariosEnArchivo(gestorUsuarios.getUsuariosRegistrados());  // Guardamos en el archivo
+            // Registrar los usuarios en el gestor
+            gestorUsuarios.registrarUsuario(nuevoUsuario);
+            gestorUsuarios.registrarUsuario(nuevoUsuario1);
+            gestorUsuarios.registrarUsuario(nuevoUsuario2);
 
-            System.out.println("Usuario registrado con éxito: " + nuevoUsuario);
+            // Guardar los usuarios en el archivo
+            jsonUtilUsuario.guardarUsuariosEnArchivo(gestorUsuarios.getUsuariosRegistrados());
 
-        } catch (ContrasenaInvalidaException e) {
-            // Si hay una excepción de contraseña inválida, la manejamos aquí
-            GestorExcepciones.manejarContrasenaInvalida(e);
-
-        } catch (EmailInvalidoException e) {
-            // Si hay una excepción de email inválido, la manejamos aquí
-            GestorExcepciones.manejarEmailInvalido(e);
-
-        } catch (Exception e) {
-            // Para cualquier otra excepción no controlada, usamos el manejador genérico
-            GestorExcepciones.manejarExcepcion(e);
+        } catch (IOException | ContrasenaInvalidaException | EmailInvalidoException e) {
+            e.printStackTrace();
         }
 
 
