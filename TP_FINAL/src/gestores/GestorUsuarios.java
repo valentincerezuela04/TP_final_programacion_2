@@ -1,50 +1,70 @@
 package gestores;
 
-
-import manejo_json.JsonUtil;
+import excepciones.ContrasenaInvalidaException;
+import excepciones.EmailInvalidoException;
+import manejo_json.JsonUtilUsuario;
 import usuario.Usuario;
 import usuario.ValidacionUsuario;
 
+import java.io.IOException;
 import java.util.HashMap;
 
-
 public class GestorUsuarios {
-        private HashMap<String, Usuario> usuariosRegistrados;
+    private HashMap<String, Usuario> usuariosRegistrados;
+    private JsonUtilUsuario jsonUtilUsuario;
 
-        public GestorUsuarios() {
-            // Crear metodo para cargar los usuarios registrados desde el archivo JSON
-            // this.usuariosRegistrados = JsonUtil.cargarUsuariosDesdeArchivo();
+    public GestorUsuarios() {
+        usuariosRegistrados = new HashMap<>();
+        jsonUtilUsuario = new JsonUtilUsuario();
+
+        try {
+            usuariosRegistrados = jsonUtilUsuario.cargarUsuariosDesdeArchivo();
+        } catch (IOException e) {
+            System.out.println("Error al cargar los usuarios desde el archivo: " + e.getMessage());
+        } catch (ContrasenaInvalidaException e) {
+            System.out.println("Error de contraseña inválida: " + e.getMessage());
+        } catch (EmailInvalidoException e) {
+            System.out.println("Error de email inválido: " + e.getMessage());
         }
+    }
+
+    public HashMap<String, Usuario> getUsuariosRegistrados() {
+        return usuariosRegistrados;
+    }
 
     // Método para registrar un nuevo usuario
-    public Usuario registrarUsuario(String nombre, String contraseña, String email) {
-        // Verifica si el usuario ya está registrado
-        if (!usuariosRegistrados.containsKey(nombre)) {
-            // Verifica que el email tenga el formato correcto
-            if (!ValidacionUsuario.esEmailValido(email)) {
-                System.out.println("Email no válido.");
-                return null;
-            }
-            // Verifica si la contraseña cumple las reglas
-            if (!ValidacionUsuario.esContraseñaValida(contraseña)) {
-                System.out.println("Contraseña no válida. Debe tener al menos 8 caracteres, una mayúscula, un número, y no contener espacios ni caracteres especiales.");
-                return null;
-            }
+    public Usuario registrarUsuario(Usuario usuario) {
+        if (!usuariosRegistrados.containsKey(usuario.getNombre())) {
+            try {
+                // Validar el email y la contraseña
+                ValidacionUsuario.esEmailValido(usuario.getEmail());
+                ValidacionUsuario.esContraseñaValida(usuario.getContraseña());
 
-            Usuario nuevoUsuario = new Usuario(nombre, contraseña, email);
-            usuariosRegistrados.put(nombre, nuevoUsuario); // Registra el usuario
-            // JsonUtil.guardarUsuariosEnArchivo(usuariosRegistrados); // Guarda en el archivo JSON (Crear metodo para guardar usuarios en el archivo)
-            return nuevoUsuario;
+                usuariosRegistrados.put(usuario.getNombre(), usuario);
+
+                // Guardar los usuarios en el archivo
+                try {
+                    jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
+                } catch (IOException e) {
+                    System.out.println("Error al guardar el usuario: " + e.getMessage());
+                }
+
+                return usuario;
+
+            } catch (EmailInvalidoException | ContrasenaInvalidaException e) {
+                System.out.println("Error de validación: " + e.getMessage());
+                return null;
+            }
         } else {
             System.out.println("Usuario ya registrado");
             return null;
         }
     }
 
-    //Metodo para iniciar sesion
+    // Método para iniciar sesión
     public Usuario iniciarSesion(String nombre, String contraseña) {
         Usuario usuario = usuariosRegistrados.get(nombre);
-        if (usuario != null && usuario.verificarContraseña(contraseña)) {
+        if (usuario != null && ValidacionUsuario.verificarContraseña(usuario.getContraseña(), contraseña)) {
             return usuario;
         } else {
             System.out.println("Nombre o contraseña incorrectos");
@@ -56,21 +76,23 @@ public class GestorUsuarios {
     public void cambiarContraseña(String nombre, String contraseñaAntigua, String nuevaContraseña) {
         Usuario usuario = usuariosRegistrados.get(nombre);
         if (usuario != null) {
-            // Verifica si la contraseña antigua es correcta
-            if (usuario.verificarContraseña(contraseñaAntigua)) {
-                // Verifica si la nueva contraseña cumple con las reglas
-                if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
-                    usuario.cambiarContraseña(contraseñaAntigua, nuevaContraseña);
-                    //JsonUtil.guardarUsuariosEnArchivo(usuariosRegistrados); // Guarda el cambio en el archivo JSON (Falta metodo)
-                    System.out.println("Contraseña cambiada con éxito");
-                } else {
-                    System.out.println("Nueva contraseña no válida. Debe cumplir con las reglas de validación."); //Cambiar por excepcion
+            if (ValidacionUsuario.verificarContraseña(usuario.getContraseña(), contraseñaAntigua)) {
+                try {
+                    if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
+                        usuario.cambiarContraseña(contraseñaAntigua, nuevaContraseña);
+                        jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
+                        System.out.println("Contraseña cambiada con éxito");
+                    } else {
+                        throw new ContrasenaInvalidaException("Nueva contraseña no válida.");
+                    }
+                } catch (ContrasenaInvalidaException | IOException e) {
+                    System.out.println("Error al cambiar contraseña: " + e.getMessage());
                 }
             } else {
-                System.out.println("Contraseña antigua incorrecta"); //Cambiar por excepcion
+                System.out.println("Contraseña antigua incorrecta");
             }
         } else {
-            System.out.println("Usuario no encontrado"); //Cambiar por excepcion
+            System.out.println("Usuario no encontrado");
         }
     }
 
@@ -80,6 +102,4 @@ public class GestorUsuarios {
             System.out.println(usuario);
         }
     }
-
-
 }

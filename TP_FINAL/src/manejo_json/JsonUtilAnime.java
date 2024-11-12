@@ -1,13 +1,11 @@
 package manejo_json;
 import contenido.Anime;
-import contenido.Estado_vistoONo_enum;
-import contenido.Genre;
+import contenido.EstadoVisto;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JsonUtilAnime extends JsonUtil {
@@ -74,7 +72,7 @@ public class JsonUtilAnime extends JsonUtil {
                 String imageUrl = jsonObject.getJSONObject("images").getJSONObject("jpg").optString("image_url", "");
 // Obtener el valor de "vistoONo" con optString, que devuelve un valor por defecto si la clave no está presente
         String vistoONoValue = jsonObject.optString("vistoONo", "NO_VISTO");
-        Estado_vistoONo_enum vistoONo = Estado_vistoONo_enum.valueOf(vistoONoValue);
+        EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoValue);
 
 
         // Crear el objeto Anime

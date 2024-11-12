@@ -1,11 +1,11 @@
 package contenido;
-public class Genre {
+public class Genero {
     private int id;
     private String type;
     private String name;
 
     // Constructor
-    public Genre(int id, String type, String name) {
+    public Genero(int id, String type, String name) {
         this.id = id;
         this.type = type;
         this.name = name;

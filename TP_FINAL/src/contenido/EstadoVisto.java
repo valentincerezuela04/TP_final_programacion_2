@@ -1,5 +1,5 @@
 package contenido;
 
-public enum Estado_vistoONo_enum {
+public enum EstadoVisto {
     VISTO,NO_VISTO
 }

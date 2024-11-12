@@ -1,11 +1,9 @@
 package contenido;
 
-import java.util.List;
-
 public class Anime extends Contenido{
     private int episodios;
 
-    public Anime(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, String urL_image, Estado_vistoONo_enum vistoONo, int episodios) {
+    public Anime(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, String urL_image, EstadoVisto vistoONo, int episodios) {
         super(
                 id,
                 members,
