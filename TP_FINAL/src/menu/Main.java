@@ -11,38 +11,12 @@ import usuario.Usuario;
 
 import java.io.IOException;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+
 public class Main {
     public static void main(String[] args) {
 
-        // Crear un objeto JsonUtilUsuario para gestionar los archivos JSON
-        JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
-
-        // Cargar los usuarios desde los archivos
-        GestorUsuarios gestorUsuarios = new GestorUsuarios();
-
-        try {
-            // Crear nuevos usuarios
-            Usuario nuevoUsuario = new Usuario("Seba", "Contraseña1", "seba@gmail.com");
-            Usuario nuevoUsuario1 = new Usuario("Santiago", "Contraseña2", "juli@gmail.com");
-            Usuario nuevoUsuario2 = new Usuario("Jere", "Contraseña3", "jere@gmail.com");
-            System.out.println("ID del nuevo usuario: " + nuevoUsuario.getId());
-            System.out.println("ID del nuevo usuario: " + nuevoUsuario1.getId());
-            System.out.println("ID del nuevo usuario: " + nuevoUsuario2.getId());
-
-            // Registrar los usuarios en el gestor
-            gestorUsuarios.registrarUsuario(nuevoUsuario);
-            gestorUsuarios.registrarUsuario(nuevoUsuario1);
-            gestorUsuarios.registrarUsuario(nuevoUsuario2);
-
-            // Guardar los usuarios en el archivo
-            jsonUtilUsuario.guardarUsuariosEnArchivo(gestorUsuarios.getUsuariosRegistrados());
-
-        } catch (IOException | ContrasenaInvalidaException | EmailInvalidoException e) {
-            e.printStackTrace();
-        }
-
+       Menu menu = new Menu();
+       menu.mostrarMenuPrincipal();
 
 
 //        System.out.println(Consumiendo_api.getAnime());

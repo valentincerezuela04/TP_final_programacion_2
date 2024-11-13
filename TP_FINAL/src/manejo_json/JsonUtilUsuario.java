@@ -7,6 +7,9 @@ import org.json.JSONObject;
 import usuario.Usuario;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,8 +62,15 @@ public class JsonUtilUsuario extends JsonUtil {
     // Cargar los usuarios desde el archivo
     public HashMap<String, Usuario> cargarUsuariosDesdeArchivo() throws IOException, ContrasenaInvalidaException, EmailInvalidoException {
         HashMap<String, Usuario> usuarios = new HashMap<>();
-        JSONArray usuariosJsonArray = readJsonFromFileArray(ARCHIVO_USUARIOS);
 
+        // Leer el archivo como un JSONObject
+        String content = new String(Files.readAllBytes(Paths.get(ARCHIVO_USUARIOS)), StandardCharsets.UTF_8);
+        JSONObject jsonObject = new JSONObject(content);
+
+        // Extraer el array de usuarios
+        JSONArray usuariosJsonArray = jsonObject.getJSONArray("usuarios");
+
+        // Iterar sobre el array de usuarios y convertirlos a objetos Usuario
         if (usuariosJsonArray != null) {
             for (int i = 0; i < usuariosJsonArray.length(); i++) {
                 JSONObject usuarioJson = usuariosJsonArray.getJSONObject(i);
@@ -71,4 +81,16 @@ public class JsonUtilUsuario extends JsonUtil {
 
         return usuarios;
     }
+
+    // Método auxiliar para escribir JSON a un archivo
+    public static void writeJsonToFile(String fileName, JSONObject jsonObject) {
+        try {
+            // Escribe el JSON en el archivo con formato (4 espacios de indentación)
+            Files.write(Paths.get(fileName), jsonObject.toString(4).getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            // Manejo de la excepción en caso de error al escribir en el archivo
+            System.err.println("Error al escribir en el archivo " + fileName + ": " + e.getMessage());
+        }
+    }
+
 }

@@ -2,7 +2,6 @@ package usuario;
 
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
-import seguridad.EncriptacionUtil;
 
 public class Usuario {
 
@@ -20,9 +19,9 @@ public class Usuario {
         this.id = contadorId++;  // Usamos el método para asignar el ID
         this.nombre = nombre;
 
-        // Validar y encriptar la contraseña
+        // Validar la contraseña (ya no se encripta)
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = EncriptacionUtil.encriptar(contraseña);
+            this.contraseña = contraseña;  // Se guarda tal cual se ingresa
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
         }
@@ -42,7 +41,7 @@ public class Usuario {
 
     public void setContraseña(String contraseña) throws ContrasenaInvalidaException {
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = EncriptacionUtil.encriptar(contraseña);
+            this.contraseña = contraseña;  // Se guarda tal cual se ingresa
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida.");
         }
@@ -73,10 +72,10 @@ public class Usuario {
     }
 
     public void cambiarContraseña(String contraseñaAntigua, String nuevaContraseña) throws ContrasenaInvalidaException {
-        // Verificar la contraseña encriptada
-        if (ValidacionUsuario.verificarContraseña(this.contraseña, EncriptacionUtil.encriptar(contraseñaAntigua))) {
+        // Verificar que la contraseña antigua coincida
+        if (this.contraseña.equals(contraseñaAntigua)) {
             if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
-                this.contraseña = EncriptacionUtil.encriptar(nuevaContraseña);
+                this.contraseña = nuevaContraseña;  // Se guarda tal cual la nueva contraseña
             } else {
                 throw new ContrasenaInvalidaException("Nueva contraseña no válida.");
             }
