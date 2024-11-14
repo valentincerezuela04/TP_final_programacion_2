@@ -20,6 +20,13 @@ public class GestorExcepciones {
         registrarEnLog(mensaje);
     }
 
+    // Método para manejar la excepción de usuario no encontrado
+    public static void manejarUsuarioNoEncontrado(UsuarioNoEncontradoException e) {
+        String mensaje = "Error en el usuario: " + e.getMessage();
+        System.out.println(mensaje);
+        registrarEnLog(mensaje);
+    }
+
     // Método para manejar excepciones de I/O (por ejemplo, error al guardar archivo)
     public static void manejarIOException(IOException e) {
         String mensaje = "Error de entrada/salida: " + e.getMessage();
@@ -43,4 +50,3 @@ public class GestorExcepciones {
         }
     }
 }
-

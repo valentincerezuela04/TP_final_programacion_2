@@ -1,48 +1,52 @@
 package menu;
 
-import api.GetManga;
+import contenido.Anime;
+import contenido.EstadoVisto;
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
-import excepciones.GestorExcepciones;
-import gestores.GestorUsuarios;
-import manejo_json.JsonUtil;
 import manejo_json.JsonUtilUsuario;
 import usuario.Usuario;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+
 public class Main {
     public static void main(String[] args) {
 
-        // Crear un objeto JsonUtilUsuario para gestionar los archivos JSON
-        JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
-
-        // Cargar los usuarios desde los archivos
-        GestorUsuarios gestorUsuarios = new GestorUsuarios();
-
         try {
-            // Crear nuevos usuarios
-            Usuario nuevoUsuario = new Usuario("Seba", "Contraseña1", "seba@gmail.com");
-            Usuario nuevoUsuario1 = new Usuario("Santiago", "Contraseña2", "juli@gmail.com");
-            Usuario nuevoUsuario2 = new Usuario("Jere", "Contraseña3", "jere@gmail.com");
-            System.out.println("ID del nuevo usuario: " + nuevoUsuario.getId());
-            System.out.println("ID del nuevo usuario: " + nuevoUsuario1.getId());
-            System.out.println("ID del nuevo usuario: " + nuevoUsuario2.getId());
+            // Crear un anime
+            Anime anime = new Anime(1, 5000, "Naruto", 855, 1, 8.7, "Airing", "Naruto es un joven ninja...",
+                    "Naruto", EstadoVisto.NO_VISTO, 220);
 
-            // Registrar los usuarios en el gestor
-            gestorUsuarios.registrarUsuario(nuevoUsuario);
-            gestorUsuarios.registrarUsuario(nuevoUsuario1);
-            gestorUsuarios.registrarUsuario(nuevoUsuario2);
+            // Crear un usuario
+            Usuario usuario = new Usuario("juan123", "Argentina10", "juan@example.com");
 
-            // Guardar los usuarios en el archivo
-            jsonUtilUsuario.guardarUsuariosEnArchivo(gestorUsuarios.getUsuariosRegistrados());
+            // Agregar el anime a la lista del usuario
+            usuario.getAnimes().add(anime);
 
-        } catch (IOException | ContrasenaInvalidaException | EmailInvalidoException e) {
-            e.printStackTrace();
+            HashMap<String, Usuario> mapaUsuarios = new HashMap<>();
+            mapaUsuarios.put(usuario.getNombre(), usuario);
+            // Guardar el usuario con el anime en un archivo JSON
+            JsonUtilUsuario.guardarUsuariosEnArchivo(mapaUsuarios);
+
+            System.out.println("Usuario con anime agregado y datos guardados en el archivo JSON.");
+        } catch (ContrasenaInvalidaException | EmailInvalidoException | IOException e) {
+            System.err.println("Error al guardar el usuario: " + e.getMessage());
         }
 
+//        GetAnime getAnime = new GetAnime();
+//        getAnime.obtenerYGuardarDataFiltrada("pruebaAnime.json");
+//        JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
+//        jsonUtilAnime.mostrarAnimesConsola("pruebaAnime.json");
+//
+//        GetManga getManga = new GetManga();
+//        getManga.obtenerYGuardarDataFiltrada("pruebaManga.json");
+//        JsonUtilManga jsonUtilManga = new JsonUtilManga();
+//        jsonUtilManga.mostrarMangasConsola("pruebaManga.json");
+//        Menu menu = new Menu();
+//       menu.mostrarMenuPrincipal();
 
 
 //        System.out.println(Consumiendo_api.getAnime());
@@ -66,9 +70,6 @@ public class Main {
 //      Consumiendo_api.obtenerYGuardarDataFiltrada("prueba.json");
 //        System.out.println(JsonUtil.readJsonFromFileArray("prueba.json"));
 
-//        System.out.println(Get_Manga.getDataApi());
-        GetManga getManga = new GetManga();
-        getManga.obtenerYGuardarDataFiltrada("pruebaManga.json");
-        System.out.println(JsonUtil.readJsonArrayFromFile("pruebaManga.json"));
+//        System.out.println(Get_Manga.getDataApi())
     }
 }

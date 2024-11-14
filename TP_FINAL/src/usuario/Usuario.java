@@ -1,8 +1,12 @@
 package usuario;
 
+import contenido.Anime;
+import contenido.Manga;
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
-import seguridad.EncriptacionUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Usuario {
 
@@ -11,6 +15,8 @@ public class Usuario {
     private String nombre;
     private String contraseña;
     private String email;
+    private List<Anime> listaAnime;
+    private List<Manga> listaManga;
 
     public Usuario() {
     }
@@ -20,9 +26,9 @@ public class Usuario {
         this.id = contadorId++;  // Usamos el método para asignar el ID
         this.nombre = nombre;
 
-        // Validar y encriptar la contraseña
+        // Validar la contraseña (ya no se encripta)
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = EncriptacionUtil.encriptar(contraseña);
+            this.contraseña = contraseña;  // Se guarda tal cual se ingresa
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
         }
@@ -33,6 +39,9 @@ public class Usuario {
         } else {
             throw new EmailInvalidoException("Formato de email inválido.");
         }
+
+        this.listaAnime = new ArrayList<>(); // Inicializamos las listas vacías
+        this.listaManga = new ArrayList<>();
     }
 
     // Métodos de la clase Usuario
@@ -42,7 +51,7 @@ public class Usuario {
 
     public void setContraseña(String contraseña) throws ContrasenaInvalidaException {
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = EncriptacionUtil.encriptar(contraseña);
+            this.contraseña = contraseña;  // Se guarda tal cual la nueva contraseña
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida.");
         }
@@ -73,16 +82,56 @@ public class Usuario {
     }
 
     public void cambiarContraseña(String contraseñaAntigua, String nuevaContraseña) throws ContrasenaInvalidaException {
-        // Verificar la contraseña encriptada
-        if (ValidacionUsuario.verificarContraseña(this.contraseña, EncriptacionUtil.encriptar(contraseñaAntigua))) {
+        // Verificar que la contraseña antigua coincida
+        if (this.contraseña.equals(contraseñaAntigua)) {
             if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
-                this.contraseña = EncriptacionUtil.encriptar(nuevaContraseña);
+                this.contraseña = nuevaContraseña;  // Se guarda tal cual la nueva contraseña
             } else {
                 throw new ContrasenaInvalidaException("Nueva contraseña no válida.");
             }
         } else {
             throw new ContrasenaInvalidaException("Contraseña incorrecta");
         }
+    }
+
+    public void cambiarEmail(String contraseñaActual, String nuevoEmail) throws ContrasenaInvalidaException, EmailInvalidoException {
+        // Verificar que la contraseña ingresada coincida con la actual
+        if (this.contraseña.equals(contraseñaActual)) {
+            // Validar el nuevo email
+            if (ValidacionUsuario.esEmailValido(nuevoEmail)) {
+                this.email = nuevoEmail;  // Actualizar el email
+                System.out.println("Email actualizado correctamente.");
+            }
+        } else {
+            throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el email.");
+        }
+    }
+
+    public void cambiarNombreUsuario(String contraseñaActual, String nuevoNombre) throws ContrasenaInvalidaException {
+        // Verificar que la contraseña ingresada coincida con la actual
+        if (this.contraseña.equals(contraseñaActual)) {
+            this.nombre = nuevoNombre;  // Actualizar el nombre de usuario
+            System.out.println("Nombre de usuario actualizado correctamente.");
+        } else {
+            throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el nombre de usuario.");
+        }
+    }
+
+    // Getter y setter para las listas de anime y manga
+    public List<Anime> getAnimes() {
+        return listaAnime;
+    }
+
+    public void setAnimes(List<Anime> listaAnime) {
+        this.listaAnime = listaAnime;
+    }
+
+    public List<Manga> getMangas() {
+        return listaManga;
+    }
+
+    public void setMangas(List<Manga> listaManga) {
+        this.listaManga = listaManga;
     }
 
     @Override
