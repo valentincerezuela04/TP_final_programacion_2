@@ -5,8 +5,8 @@ import contenido.EstadoVisto;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JsonUtilAnime extends JsonUtil {
@@ -30,7 +30,6 @@ public class JsonUtilAnime extends JsonUtil {
         return json;
     }
 
-    // Para la API
     public static JSONArray listToJson(List<Anime> animeList) {
         JSONArray jsonArray = new JSONArray();
 
@@ -56,7 +55,6 @@ public class JsonUtilAnime extends JsonUtil {
 
     @Override
     public Object jsonToObject(JSONObject jsonObject) {
-        // Obtener datos desde el JSON
         int id = jsonObject.optInt("mal_id", jsonObject.optInt("id", 0));
         String title = jsonObject.optString("title", "Sin título");
         double score = jsonObject.optDouble("score", 0.0);
@@ -67,28 +65,80 @@ public class JsonUtilAnime extends JsonUtil {
         int rank = jsonObject.optInt("rank", 0);
         String synopsis = jsonObject.optString("synopsis", "Sin sinopsis disponible");
 
-        // Para la consola, se omite "images", así que `imageUrl` se define como una cadena vacía
-        String imageUrl = "";
-
-        // Obtener el valor de "vistoONo" con optString, que devuelve un valor por defecto si la clave no está presente
         String vistoONoValue = jsonObject.optString("vistoONo", "NO_VISTO");
         EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoValue);
 
-        // Crear el objeto Anime
-        return new Anime(id, members, title, popularity, rank, score, status, synopsis, title, imageUrl, vistoONo, episodes);
+        return new Anime(id, members, title, popularity, rank, score, status, synopsis, title, vistoONo, episodes);
     }
 
-    // Método para guardar el objeto Anime en un archivo usando JsonUtilAnime
+    // Método para guardar la lista de animes en un archivo JSON
     public static void guardarListaAnimeEnArchivo(List<Anime> anime, String archivoDestino) {
-        // Usar la clase JsonUtilAnime para convertir el objeto Anime a JSON
-        JSONArray jsonObject = JsonUtilAnime.listToJson(anime);  // Convertir el objeto Anime a JSON
+        JSONArray jsonObject = JsonUtilAnime.listToJson(anime);
 
-        try (FileWriter file = new FileWriter(archivoDestino, false)) {  // "false" para sobrescribir el archivo
-            file.write(jsonObject.toString(4));  // Escribir el JSON con indentación de 4 espacios
+        try (FileWriter file = new FileWriter(archivoDestino, false)) {
+            file.write(jsonObject.toString(4));
             file.flush();
         } catch (IOException e) {
             System.out.println("Error al guardar el archivo.");
             e.printStackTrace();
         }
     }
+
+    // Método para cargar animes desde un archivo JSON
+    public List<Anime> cargarAnimesDesdeArchivo(String archivoDestino) {
+        List<Anime> listaDeAnimes = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(archivoDestino))) {
+            StringBuilder contenido = new StringBuilder();
+            String linea;
+
+            // Leer el archivo línea por línea y acumular el contenido
+            while ((linea = reader.readLine()) != null) {
+                contenido.append(linea);
+            }
+
+            // Crear JSONArray a partir del contenido completo
+            JSONArray jsonArray = new JSONArray(contenido.toString());
+
+            // Procesar cada elemento del JSONArray
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject animeJson = jsonArray.getJSONObject(i);
+
+                // Verificar y renombrar el campo "id" a "mal_id" si existe
+                if (animeJson.has("id") && !animeJson.has("mal_id")) {
+                    animeJson.put("mal_id", animeJson.getInt("id"));
+                }
+
+                // Omitir el campo "images" si está presente
+                animeJson.remove("images");
+
+                // Convertir el JSONObject a un objeto Anime
+                Anime anime = (Anime) this.jsonToObject(animeJson);
+                listaDeAnimes.add(anime);
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo JSON: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return listaDeAnimes;
+    }
+
+    // Método para mostrar animes cargados desde un archivo JSON
+    public void mostrarAnimesConsola(String archivoDestino) {
+        List<Anime> listaDeAnimes = cargarAnimesDesdeArchivo(archivoDestino);
+
+        if (listaDeAnimes != null && !listaDeAnimes.isEmpty()) {
+            System.out.println("---- Lista de Animes ----");
+            for (Anime anime : listaDeAnimes) {
+                System.out.printf("ID: %d%n", anime.getId());
+                System.out.printf("Título: %s%n", anime.getTitle());
+                System.out.printf("Puntaje: %.2f | Estado: %s%n", anime.getScore(), anime.getStatus());
+                System.out.println("----------------------------------------");
+            }
+        } else {
+            System.out.println("No se encontraron animes para mostrar.");
+        }
+    }
+
 }

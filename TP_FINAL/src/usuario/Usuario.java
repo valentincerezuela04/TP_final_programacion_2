@@ -1,7 +1,12 @@
 package usuario;
 
+import contenido.Anime;
+import contenido.Manga;
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Usuario {
 
@@ -10,6 +15,9 @@ public class Usuario {
     private String nombre;
     private String contraseña;
     private String email;
+    private List<Anime> listaAnime;
+    private List<Manga> listaManga;
+
     public Usuario() {
     }
 
@@ -31,6 +39,9 @@ public class Usuario {
         } else {
             throw new EmailInvalidoException("Formato de email inválido.");
         }
+
+        this.listaAnime = new ArrayList<>(); // Inicializamos las listas vacías
+        this.listaManga = new ArrayList<>();
     }
 
     // Métodos de la clase Usuario
@@ -40,7 +51,7 @@ public class Usuario {
 
     public void setContraseña(String contraseña) throws ContrasenaInvalidaException {
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = contraseña;  // Se guarda tal cual se ingresa
+            this.contraseña = contraseña;  // Se guarda tal cual la nueva contraseña
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida.");
         }
@@ -104,6 +115,23 @@ public class Usuario {
         } else {
             throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el nombre de usuario.");
         }
+    }
+
+    // Getter y setter para las listas de anime y manga
+    public List<Anime> getAnimes() {
+        return listaAnime;
+    }
+
+    public void setAnimes(List<Anime> listaAnime) {
+        this.listaAnime = listaAnime;
+    }
+
+    public List<Manga> getMangas() {
+        return listaManga;
+    }
+
+    public void setMangas(List<Manga> listaManga) {
+        this.listaManga = listaManga;
     }
 
     @Override

@@ -3,7 +3,7 @@ package contenido;
 public abstract class Contenido {
     private int id;
     private String name;
-    private String urL_image;
+
     private String title;
     private String status;
     private double score;
@@ -13,7 +13,7 @@ public abstract class Contenido {
     private String synopsis;
     private EstadoVisto vistoONo;
 
-    public Contenido(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, String urL_image, EstadoVisto vistoONo) {
+    public Contenido(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, EstadoVisto vistoONo) {
         this.id = id;
         this.members = members;
         this.name = name;
@@ -23,7 +23,6 @@ public abstract class Contenido {
         this.status = status;
         this.synopsis = synopsis;
         this.title = title;
-        this.urL_image = urL_image;
         this.vistoONo = vistoONo;
     }
     public Contenido (){
@@ -100,14 +99,6 @@ public abstract class Contenido {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getUrL_image() {
-        return urL_image;
-    }
-
-    public void setUrL_image(String urL_image) {
-        this.urL_image = urL_image;
     }
 
     public EstadoVisto getVistoONo() {

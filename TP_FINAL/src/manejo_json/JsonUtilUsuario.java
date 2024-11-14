@@ -5,6 +5,8 @@ import excepciones.EmailInvalidoException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import usuario.Usuario;
+import contenido.Anime;
+import contenido.Manga;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 public class JsonUtilUsuario extends JsonUtil {
 
@@ -28,6 +31,26 @@ public class JsonUtilUsuario extends JsonUtil {
         usuarioJson.put("nombre", usuario.getNombre());
         usuarioJson.put("contraseña", usuario.getContraseña());
         usuarioJson.put("email", usuario.getEmail());
+
+        JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
+        // Incluir listas de animes o mangas si existen
+        if (usuario.getAnimes() != null && !usuario.getAnimes().isEmpty()) {
+            JSONArray animeJsonArray = new JSONArray();
+            for (Anime anime : usuario.getAnimes()) {
+                animeJsonArray.put(jsonUtilAnime.objectToJson(anime));
+            }
+            usuarioJson.put("animeList", animeJsonArray);
+        }
+
+        JsonUtilManga jsonUtilManga = new JsonUtilManga();
+        if (usuario.getMangas() != null && !usuario.getMangas().isEmpty()) {
+            JSONArray mangaJsonArray = new JSONArray();
+            for (Manga manga : usuario.getMangas()) {
+                mangaJsonArray.put(jsonUtilManga.objectToJson(manga));
+            }
+            usuarioJson.put("mangaList", mangaJsonArray);
+        }
+
         return usuarioJson;
     }
 
@@ -38,8 +61,34 @@ public class JsonUtilUsuario extends JsonUtil {
         String email = jsonObject.getString("email");
         int id = jsonObject.getInt("id");
 
+        // Inicializamos el usuario con nombre, contraseña y email
         Usuario usuario = new Usuario(nombre, contraseña, email);
         usuario.setId(id); // Establecer el ID correcto
+
+        JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
+        // Cargar listas de anime si están presentes
+        if (jsonObject.has("animeList")) {
+            JSONArray animeJsonArray = jsonObject.getJSONArray("animeList");
+            List<Anime> listaAnime = new ArrayList<>();
+            for (int i = 0; i < animeJsonArray.length(); i++) {
+                Anime anime = (Anime) jsonUtilAnime.jsonToObject(animeJsonArray.getJSONObject(i));
+                listaAnime.add(anime);
+            }
+            usuario.setAnimes(listaAnime);
+        }
+
+        JsonUtilManga jsonUtilManga = new JsonUtilManga();
+        // Cargar listas de manga si están presentes
+        if (jsonObject.has("mangaList")) {
+            JSONArray mangaJsonArray = jsonObject.getJSONArray("mangaList");
+            List<Manga> listaManga = new ArrayList<>();
+            for (int i = 0; i < mangaJsonArray.length(); i++) {
+                Manga manga = (Manga) jsonUtilManga.jsonToObject(mangaJsonArray.getJSONObject(i));
+                listaManga.add(manga);
+            }
+            usuario.setMangas(listaManga);
+        }
+
         return usuario;
     }
 
@@ -50,14 +99,11 @@ public class JsonUtilUsuario extends JsonUtil {
         // Ordenar la lista de usuarios por ID
         Collections.sort(listaUsuarios, Comparator.comparingInt(Usuario::getId));
 
-        // Crear una instancia de JsonUtilUsuario para llamar a objectToJson
         JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
-
-
         // Convertir la lista ordenada en un JSONArray
         JSONArray usuariosJson = new JSONArray();
         for (Usuario usuario : listaUsuarios) {
-            // Llamar al método objectToJson() desde la instancia
+            // Llamar al método objectToJson() estático
             usuariosJson.put(jsonUtilUsuario.objectToJson(usuario));
         }
 
@@ -84,14 +130,12 @@ public class JsonUtilUsuario extends JsonUtil {
             // Extraer el array de usuarios
             JSONArray usuariosJsonArray = jsonObject.getJSONArray("usuarios");
 
-            // Crear una instancia de JsonUtilUsuario para llamar a jsonToObject()
             JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
-
             // Iterar sobre el array de usuarios y convertirlos a objetos Usuario
             if (usuariosJsonArray != null) {
                 for (int i = 0; i < usuariosJsonArray.length(); i++) {
                     JSONObject usuarioJson = usuariosJsonArray.getJSONObject(i);
-                    Usuario usuario = jsonUtilUsuario.jsonToObject(usuarioJson); // Llamar a jsonToObject desde la instancia
+                    Usuario usuario = jsonUtilUsuario.jsonToObject(usuarioJson); // Llamar a jsonToObject estático
                     usuarios.put(usuario.getNombre(), usuario);
                 }
             }
@@ -102,14 +146,12 @@ public class JsonUtilUsuario extends JsonUtil {
         return usuarios;
     }
 
-
     // Método auxiliar para escribir JSON a un archivo
     public static void writeJsonToFile(String fileName, JSONObject jsonObject) {
         try {
             // Escribe el JSON en el archivo con formato (4 espacios de indentación)
             Files.write(Paths.get(fileName), jsonObject.toString(4).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
-            // Manejo de la excepción en caso de error al escribir en el archivo
             System.err.println("Error al escribir en el archivo " + fileName + ": " + e.getMessage());
         }
     }
@@ -131,5 +173,4 @@ public class JsonUtilUsuario extends JsonUtil {
         // Guardar los usuarios actualizados en el archivo, ordenados por ID
         guardarUsuariosEnArchivo(usuarios);
     }
-
 }

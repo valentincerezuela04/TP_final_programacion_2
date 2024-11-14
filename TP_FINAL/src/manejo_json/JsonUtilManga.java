@@ -1,12 +1,16 @@
 package manejo_json;
 
+import contenido.Anime;
 import contenido.Manga;
 import contenido.EstadoVisto;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JsonUtilManga extends JsonUtil {
@@ -26,7 +30,6 @@ public class JsonUtilManga extends JsonUtil {
         json.put("popularity", manga.getPopularity());
         json.put("rank", manga.getRank());
         json.put("synopsis", manga.getSynopsis());
-        json.put("imageUrl", manga.getUrL_image());
         json.put("vistoONo", manga.getVistoONo().name());
 
         return json;
@@ -47,14 +50,13 @@ public class JsonUtilManga extends JsonUtil {
         int popularity = jsonObject.optInt("popularity", 0);
         int rank = jsonObject.optInt("rank", 0);
         String synopsis = jsonObject.optString("synopsis", "Sin sinopsis disponible");
-        String imageUrl = jsonObject.getJSONObject("images").getJSONObject("jpg").optString("image_url", "");
 
         // Obtener el valor de "vistoONo" con optString y asignar el valor predeterminado "NO_VISTO" si no está presente
         String vistoONoValue = jsonObject.optString("vistoONo", "NO_VISTO");
         EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoValue);
 
         // Crear y devolver el objeto Manga con los datos extraídos
-        return new Manga(id, members, title, popularity, rank, score, status, synopsis, title, imageUrl, vistoONo, chapters, volumes);
+        return new Manga(id, members, title, popularity, rank, score, status, synopsis, title, vistoONo, chapters, volumes);
     }
 
     // para guardarListaAnimeEnArchivo(que se utiliza en la clase de api del manga)
@@ -73,7 +75,6 @@ public class JsonUtilManga extends JsonUtil {
             json.put("popularity", manga.getPopularity());
             json.put("rank", manga.getRank());
             json.put("synopsis", manga.getSynopsis());
-            json.put("imageUrl", manga.getUrL_image());
             json.put("vistoONo", manga.getVistoONo().name());
             json.put("chapters", manga.getChapters());
             json.put("volumes", manga.getVolumes());
@@ -84,17 +85,72 @@ public class JsonUtilManga extends JsonUtil {
         return jsonArray;
     }
 
+    // Método para escribir el objeto Manga en un archivo usando JsonUtilManga
+    public static void guardarListaMangaEnArchivo(List<Manga> manga, String archivoDestino) {
+        // Usar la clase JsonUtilManga para convertir el objeto Anime a JSON
+        JSONArray mangaJson = JsonUtilManga.listToJson(manga);  // Convertir el objeto Manga a JSON
 
-    public static void guardarListaAnimeEnArchivo(List<Manga> manga, String archivoDestino) {
-        // Usar la clase JsonUtilAnime para convertir el objeto Anime a JSON
-        JSONArray mangaJson = JsonUtilManga.listToJson(manga);  // Convertir el objeto Anime a JSON
-
-        try (FileWriter file = new FileWriter(archivoDestino, true)) {  // "true" para añadir sin sobrescribir
-            file.write(mangaJson.toString(4));  // Guardar el JSON con indentación de 4 espacios
-            file.write(",");  // Añadir una nueva línea entre cada anime para legibilidad
-            System.out.println("Anime guardado en: " + archivoDestino);
+        try (FileWriter file = new FileWriter(archivoDestino, false)) {  // "false" para añadir sin sobrescribir
+            file.write(mangaJson.toString(4));  // Escribir el JSON con indentación de 4 espacios
+            file.flush();
         } catch (IOException e) {
-            System.out.println("Error al guardar el archivo: " + e.getMessage());
+            System.out.println("Error al guardar el archivo.");
+            e.printStackTrace();
+        }
+    }
+
+    public List<Manga> cargarMangasDesdeArchivo(String archivoOrigen) {
+        List<Manga> listaDeMangas = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(archivoOrigen))) {
+            StringBuilder contenido = new StringBuilder();
+            String linea;
+
+            // Leer el archivo línea por línea y acumular el contenido
+            while ((linea = reader.readLine()) != null) {
+                contenido.append(linea);
+            }
+
+            // Crear JSONArray a partir del contenido completo
+            JSONArray mangasArray = new JSONArray(contenido.toString());
+
+            // Procesar cada elemento del JSONArray
+            for (int i = 0; i < mangasArray.length(); i++) {
+                JSONObject mangaJson = mangasArray.getJSONObject(i);
+
+                // Verificar y renombrar el campo "id" a "mal_id" si existe
+                if (mangaJson.has("id") && !mangaJson.has("mal_id")) {
+                    mangaJson.put("mal_id", mangaJson.getInt("id"));
+                }
+
+                // Omitir el campo "images" si está presente
+                mangaJson.remove("images");
+
+                // Convertir el JSONObject a un objeto Manga
+                Manga manga = (Manga) new JsonUtilManga().jsonToObject(mangaJson);
+                listaDeMangas.add(manga);
+            }
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo JSON: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return listaDeMangas;
+    }
+
+    public void mostrarMangasConsola(String archivoDestino) {
+       List<Manga> listaDeMangas = cargarMangasDesdeArchivo(archivoDestino);
+
+        if (listaDeMangas != null && !listaDeMangas.isEmpty()) {
+            System.out.println("---- Lista de Mangas ----");
+            for (Manga manga : listaDeMangas) {
+                System.out.printf("ID: %d%n", manga.getId());
+                System.out.printf("Título: %s%n", manga.getTitle());
+                System.out.printf("Puntaje: %.2f | Estado: %s%n", manga.getScore(), manga.getStatus());
+                System.out.println("----------------------------------------");
+            }
+        } else {
+            System.out.println("No se encontraron mangas para mostrar.");
         }
     }
 }
