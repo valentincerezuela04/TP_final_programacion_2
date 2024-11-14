@@ -85,28 +85,29 @@ public class GestorUsuarios {
         return usuario;  // Retornar el usuario si la autenticación es exitosa
     }
 
+    public void eliminarUsuario(Usuario usuario) {
+        if (usuariosRegistrados.containsKey(usuario.getNombre())) {
+            usuariosRegistrados.remove(usuario.getNombre());
 
-    // Método para cambiar la contraseña
-    public void cambiarContraseña(String nombre, String contraseñaAntigua, String nuevaContraseña) {
-        Usuario usuario = usuariosRegistrados.get(nombre);
-        if (usuario != null) {
-            if (ValidacionUsuario.verificarContraseña(usuario.getContraseña(), contraseñaAntigua)) {
-                try {
-                    if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
-                        usuario.cambiarContraseña(contraseñaAntigua, nuevaContraseña);
-                        jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
-                        System.out.println("Contraseña cambiada con éxito");
-                    } else {
-                        throw new ContrasenaInvalidaException("Nueva contraseña no válida.");
-                    }
-                } catch (ContrasenaInvalidaException | IOException e) {
-                    System.out.println("Error al cambiar contraseña: " + e.getMessage());
-                }
-            } else {
-                System.out.println("Contraseña antigua incorrecta");
+            // Reorganiza los IDs de los usuarios restantes
+            actualizarIdsUsuarios();
+
+            // Guarda los usuarios actualizados en el archivo
+            try {
+                jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
+            } catch (IOException e) {
+                System.out.println("Error al actualizar el archivo de usuarios: " + e.getMessage());
             }
         } else {
-            System.out.println("Usuario no encontrado");
+            System.out.println("Usuario no encontrado en el sistema.");
+        }
+    }
+
+    // Método para actualizar los IDs de los usuarios en orden secuencial
+    private void actualizarIdsUsuarios() {
+        int nuevoId = 1;
+        for (Usuario usuario : usuariosRegistrados.values()) {
+            usuario.setId(nuevoId++);
         }
     }
 

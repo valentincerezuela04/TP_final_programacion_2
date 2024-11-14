@@ -2,23 +2,36 @@ package gestores;
 
 import contenido.Contenido;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GestorContenido<T extends Contenido> {
-    private Set<T> gestor_set;
+    private List<T> contenidoList;
 
-
-    public GestorContenido(Set<T> gestor_set) {
-        this.gestor_set = gestor_set;
+    // Constructor
+    public GestorContenido() {
+        contenidoList = new ArrayList<>();
     }
 
+    // Método para agregar un contenido
+    public void agregarContenido(T contenido) {
+        contenidoList.add(contenido);
+    }
 
+    // Método para obtener todo el contenido
+    public List<T> obtenerContenido() {
+        return contenidoList;
+    }
 
+    // Método para eliminar contenido por ID
+    public void eliminarContenidoPorId(int id) {
+        contenidoList.removeIf(contenido -> contenido.getId() == id);
+    }
 
-
-
-
-
-
-
+    // Método para mostrar el contenido
+    public void mostrarContenido() {
+        for (T contenido : contenidoList) {
+            System.out.println(contenido);
+        }
+    }
 }

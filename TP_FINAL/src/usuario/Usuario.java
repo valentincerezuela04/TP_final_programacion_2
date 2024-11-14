@@ -10,7 +10,6 @@ public class Usuario {
     private String nombre;
     private String contraseña;
     private String email;
-
     public Usuario() {
     }
 
@@ -81,6 +80,29 @@ public class Usuario {
             }
         } else {
             throw new ContrasenaInvalidaException("Contraseña incorrecta");
+        }
+    }
+
+    public void cambiarEmail(String contraseñaActual, String nuevoEmail) throws ContrasenaInvalidaException, EmailInvalidoException {
+        // Verificar que la contraseña ingresada coincida con la actual
+        if (this.contraseña.equals(contraseñaActual)) {
+            // Validar el nuevo email
+            if (ValidacionUsuario.esEmailValido(nuevoEmail)) {
+                this.email = nuevoEmail;  // Actualizar el email
+                System.out.println("Email actualizado correctamente.");
+            }
+        } else {
+            throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el email.");
+        }
+    }
+
+    public void cambiarNombreUsuario(String contraseñaActual, String nuevoNombre) throws ContrasenaInvalidaException {
+        // Verificar que la contraseña ingresada coincida con la actual
+        if (this.contraseña.equals(contraseñaActual)) {
+            this.nombre = nuevoNombre;  // Actualizar el nombre de usuario
+            System.out.println("Nombre de usuario actualizado correctamente.");
+        } else {
+            throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el nombre de usuario.");
         }
     }
 

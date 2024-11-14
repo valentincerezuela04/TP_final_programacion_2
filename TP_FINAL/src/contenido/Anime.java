@@ -33,11 +33,15 @@ public Anime(){
 
     @Override
     public String toString() {
-        return "Anime{} " + super.toString();
+        return super.toString() + ", Episodios: " + episodios;
     }
 
     @Override
     public void visto_o_no() {
-
+        if (this.getVistoONo() == EstadoVisto.VISTO) {
+            System.out.println("Este anime ha sido visto.");
+        } else {
+            System.out.println("Este anime no ha sido visto.");
+        }
     }
 }

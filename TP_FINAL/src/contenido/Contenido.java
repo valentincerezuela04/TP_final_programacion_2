@@ -24,7 +24,7 @@ public abstract class Contenido {
         this.synopsis = synopsis;
         this.title = title;
         this.urL_image = urL_image;
-        this.vistoONo = EstadoVisto.NO_VISTO;
+        this.vistoONo = vistoONo;
     }
     public Contenido (){
 

@@ -1,20 +1,15 @@
 package menu;
 
+import api.GetAnime;
 import api.GetManga;
-import excepciones.ContrasenaInvalidaException;
-import excepciones.EmailInvalidoException;
-import excepciones.GestorExcepciones;
-import gestores.GestorUsuarios;
-import manejo_json.JsonUtil;
-import manejo_json.JsonUtilUsuario;
-import usuario.Usuario;
-
-import java.io.IOException;
 
 
 public class Main {
     public static void main(String[] args) {
 
+        GetAnime getAnime = new GetAnime();
+        getAnime.obtenerYGuardarDataFiltrada("pruebaAnime.json");
+        getAnime.mostrarAnimes();
        Menu menu = new Menu();
        menu.mostrarMenuPrincipal();
 
@@ -43,6 +38,5 @@ public class Main {
 //        System.out.println(Get_Manga.getDataApi());
         GetManga getManga = new GetManga();
         getManga.obtenerYGuardarDataFiltrada("pruebaManga.json");
-        System.out.println(JsonUtil.readJsonArrayFromFile("pruebaManga.json"));
     }
 }
