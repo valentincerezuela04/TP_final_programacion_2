@@ -20,7 +20,7 @@ public class JsonUtilAnime extends JsonUtil {
         json.put("title", anime.getTitle());
         json.put("score", anime.getScore());
         json.put("status", anime.getStatus());
-        json.put("episodes", anime.getEpisodios());
+        json.put("episodes", anime.getEpisodes());
         json.put("members", anime.getMembers());
         json.put("popularity", anime.getPopularity());
         json.put("rank", anime.getRank());
@@ -30,7 +30,21 @@ public class JsonUtilAnime extends JsonUtil {
         return json;
     }
 
-    public static JSONArray listToJson(List<Anime> animeList) {
+    public JSONObject objectToJsonModificado(Object obj) {
+        Anime anime = (Anime) obj;
+        JSONObject json = new JSONObject();
+
+        json.put("id", anime.getId());
+        json.put("title", anime.getTitle());
+        json.put("score", anime.getScore());
+        json.put("popularity", anime.getPopularity());
+        json.put("episodes", anime.getEpisodes());
+        json.put("vistoONo", anime.getVistoONo().name());
+
+        return json;
+    }
+
+    public static JSONArray listToJsonPrueba(List<Anime> animeList) {
         JSONArray jsonArray = new JSONArray();
 
         for (Anime anime : animeList) {
@@ -40,7 +54,7 @@ public class JsonUtilAnime extends JsonUtil {
             json.put("title", anime.getTitle());
             json.put("score", anime.getScore());
             json.put("status", anime.getStatus());
-            json.put("episodes", anime.getEpisodios());
+            json.put("episodes", anime.getEpisodes());
             json.put("members", anime.getMembers());
             json.put("popularity", anime.getPopularity());
             json.put("rank", anime.getRank());
@@ -48,6 +62,24 @@ public class JsonUtilAnime extends JsonUtil {
             json.put("vistoONo", anime.getVistoONo().name());
 
             jsonArray.put(json);
+        }
+
+        return jsonArray;
+    }
+
+    public static JSONArray listToJsonUsuario(List<Anime> animeList) {
+        JSONArray jsonArray = new JSONArray();
+
+        for (Anime anime : animeList) {
+            JSONObject json = new JSONObject();
+            json.put("id", anime.getId());
+            json.put("title", anime.getTitle());
+            json.put("popularity", anime.getPopularity());
+            json.put("score", anime.getScore());
+            json.put("episodes", anime.getEpisodes());
+            json.put("vistoONo", anime.getVistoONo());
+
+            jsonArray.put(json); // Agrega el JSON del anime al JSONArray
         }
 
         return jsonArray;
@@ -73,7 +105,7 @@ public class JsonUtilAnime extends JsonUtil {
 
     // Método para guardar la lista de animes en un archivo JSON
     public static void guardarListaAnimeEnArchivo(List<Anime> anime, String archivoDestino) {
-        JSONArray jsonObject = JsonUtilAnime.listToJson(anime);
+        JSONArray jsonObject = JsonUtilAnime.listToJsonPrueba(anime);
 
         try (FileWriter file = new FileWriter(archivoDestino, false)) {
             file.write(jsonObject.toString(4));
@@ -124,21 +156,5 @@ public class JsonUtilAnime extends JsonUtil {
         return listaDeAnimes;
     }
 
-    // Método para mostrar animes cargados desde un archivo JSON
-    public void mostrarAnimesConsola(String archivoDestino) {
-        List<Anime> listaDeAnimes = cargarAnimesDesdeArchivo(archivoDestino);
-
-        if (listaDeAnimes != null && !listaDeAnimes.isEmpty()) {
-            System.out.println("---- Lista de Animes ----");
-            for (Anime anime : listaDeAnimes) {
-                System.out.printf("ID: %d%n", anime.getId());
-                System.out.printf("Título: %s%n", anime.getTitle());
-                System.out.printf("Puntaje: %.2f | Estado: %s%n", anime.getScore(), anime.getStatus());
-                System.out.println("----------------------------------------");
-            }
-        } else {
-            System.out.println("No se encontraron animes para mostrar.");
-        }
-    }
 
 }

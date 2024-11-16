@@ -40,7 +40,7 @@ public class Usuario {
             throw new EmailInvalidoException("Formato de email inválido.");
         }
 
-        this.listaAnime = new ArrayList<>(); // Inicializamos las listas vacías
+        this.listaAnime = new ArrayList<>();
         this.listaManga = new ArrayList<>();
     }
 
@@ -137,9 +137,11 @@ public class Usuario {
     @Override
     public String toString() {
         return "Usuario{" +
-                "email='" + email + '\'' +
-                ", id=" + id +
+                "id=" + id +
                 ", nombre='" + nombre + '\'' +
-                '}'; // No se muestra la contraseña por razones de seguridad
+                ", email='" + email + '\'' +
+                ", listaAnime=" + listaAnime +
+                ", listaManga=" + listaManga +
+                '}';
     }
 }

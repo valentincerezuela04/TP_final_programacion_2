@@ -3,7 +3,6 @@ package contenido;
 public abstract class Contenido {
     private int id;
     private String name;
-
     private String title;
     private String status;
     private double score;
@@ -27,6 +26,14 @@ public abstract class Contenido {
     }
     public Contenido (){
 
+    }
+
+    public Contenido(int id, String title, double score, int popularity, EstadoVisto estadoVisto){
+        this.id = id;
+        this.title = title;
+        this.score = score;
+        this.popularity = popularity;
+        this.setVistoONo(estadoVisto);
     }
 
     public int getId() {
@@ -110,4 +117,20 @@ public abstract class Contenido {
     }
 
     public abstract void visto_o_no();
+
+    @Override
+    public String toString() {
+        return "Contenido{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
+                ", status='" + status + '\'' +
+                ", score=" + score +
+                ", rank=" + rank +
+                ", popularity=" + popularity +
+                ", members=" + members +
+                ", synopsis='" + synopsis + '\'' +
+                ", vistoONo=" + vistoONo +
+                '}';
+    }
 }

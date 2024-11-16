@@ -35,12 +35,25 @@ public class JsonUtilManga extends JsonUtil {
         return json;
     }
 
+    public JSONObject objectToJsonModificado(Object obj){
+        Manga manga = (Manga) obj;
+        JSONObject json = new JSONObject();
 
+        json.put("id", manga.getId());
+        json.put("title", manga.getTitle());
+        json.put("score", manga.getScore());
+        json.put("popularity", manga.getPopularity());
+        json.put("volumes", manga.getVolumes());
+        json.put("chapters", manga.getChapters());
+        json.put("vistoONo", manga.getVistoONo().name());
+
+        return json;
+    }
 
     @Override
     public Object jsonToObject(JSONObject jsonObject) {
         // Obtener datos desde el JSON con valores predeterminados
-        int id = jsonObject.getInt("mal_id");
+        int id = jsonObject.optInt("mal_id", jsonObject.optInt("id", 0));
         String title = jsonObject.getString("title");
         double score = jsonObject.optDouble("score", 0.0);
         String status = jsonObject.optString("status", "Desconocido");
@@ -136,21 +149,5 @@ public class JsonUtilManga extends JsonUtil {
         }
 
         return listaDeMangas;
-    }
-
-    public void mostrarMangasConsola(String archivoDestino) {
-       List<Manga> listaDeMangas = cargarMangasDesdeArchivo(archivoDestino);
-
-        if (listaDeMangas != null && !listaDeMangas.isEmpty()) {
-            System.out.println("---- Lista de Mangas ----");
-            for (Manga manga : listaDeMangas) {
-                System.out.printf("ID: %d%n", manga.getId());
-                System.out.printf("Título: %s%n", manga.getTitle());
-                System.out.printf("Puntaje: %.2f | Estado: %s%n", manga.getScore(), manga.getStatus());
-                System.out.println("----------------------------------------");
-            }
-        } else {
-            System.out.println("No se encontraron mangas para mostrar.");
-        }
     }
 }

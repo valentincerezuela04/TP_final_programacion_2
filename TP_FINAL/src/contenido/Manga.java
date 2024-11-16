@@ -38,6 +38,10 @@ public class Manga extends Contenido {
 
     @Override
     public void visto_o_no() {
-
+        if (getVistoONo() == EstadoVisto.VISTO) {
+            System.out.println("Has visto el manga: " + getTitle());
+        } else {
+            System.out.println("No has visto el manga: " + getTitle());
+        }
     }
 }
