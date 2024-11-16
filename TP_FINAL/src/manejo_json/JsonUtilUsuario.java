@@ -9,6 +9,7 @@ import contenido.Anime;
 import contenido.Manga;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,22 +38,24 @@ public class JsonUtilUsuario extends JsonUtil {
         if (usuario.getAnimes() != null && !usuario.getAnimes().isEmpty()) {
             JSONArray animeJsonArray = new JSONArray();
             for (Anime anime : usuario.getAnimes()) {
-                animeJsonArray.put(jsonUtilAnime.objectToJson(anime));
+                animeJsonArray.put(jsonUtilAnime.objectToJsonModificado(anime));
             }
-            usuarioJson.put("animeList", animeJsonArray);
+            usuarioJson.put("listaAnime", animeJsonArray);
         }
 
         JsonUtilManga jsonUtilManga = new JsonUtilManga();
+        // Asegurarse de incluir la listaManga vacía si no hay mangas
+        JSONArray mangaJsonArray = new JSONArray();
         if (usuario.getMangas() != null && !usuario.getMangas().isEmpty()) {
-            JSONArray mangaJsonArray = new JSONArray();
             for (Manga manga : usuario.getMangas()) {
-                mangaJsonArray.put(jsonUtilManga.objectToJson(manga));
+                mangaJsonArray.put(jsonUtilManga.objectToJsonModificado(manga));
             }
-            usuarioJson.put("mangaList", mangaJsonArray);
         }
+        usuarioJson.put("listaManga", mangaJsonArray); // Siempre incluir listaManga
 
         return usuarioJson;
     }
+
 
     @Override
     public Usuario jsonToObject(JSONObject jsonObject) throws ContrasenaInvalidaException, EmailInvalidoException {
@@ -67,8 +70,8 @@ public class JsonUtilUsuario extends JsonUtil {
 
         JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
         // Cargar listas de anime si están presentes
-        if (jsonObject.has("animeList")) {
-            JSONArray animeJsonArray = jsonObject.getJSONArray("animeList");
+        if (jsonObject.has("listaAnime")) {
+            JSONArray animeJsonArray = jsonObject.getJSONArray("listaAnime");
             List<Anime> listaAnime = new ArrayList<>();
             for (int i = 0; i < animeJsonArray.length(); i++) {
                 Anime anime = (Anime) jsonUtilAnime.jsonToObject(animeJsonArray.getJSONObject(i));
@@ -79,8 +82,8 @@ public class JsonUtilUsuario extends JsonUtil {
 
         JsonUtilManga jsonUtilManga = new JsonUtilManga();
         // Cargar listas de manga si están presentes
-        if (jsonObject.has("mangaList")) {
-            JSONArray mangaJsonArray = jsonObject.getJSONArray("mangaList");
+        if (jsonObject.has("listaManga")) {
+            JSONArray mangaJsonArray = jsonObject.getJSONArray("listaManga");
             List<Manga> listaManga = new ArrayList<>();
             for (int i = 0; i < mangaJsonArray.length(); i++) {
                 Manga manga = (Manga) jsonUtilManga.jsonToObject(mangaJsonArray.getJSONObject(i));
@@ -92,19 +95,56 @@ public class JsonUtilUsuario extends JsonUtil {
         return usuario;
     }
 
-    // Guardar los usuarios en un archivo, ordenados por ID
+    public static void modificarUsuarioEnArchivo(Usuario usuarioModificado) throws IOException {
+        // Leer el archivo JSON que contiene los usuarios
+        JSONObject usuariosJson = readJsonFromFile(ARCHIVO_USUARIOS);
+        JSONArray usuariosArray = usuariosJson.getJSONArray("usuarios");
+
+        // Buscar el usuario en el array de usuarios
+        for (int i = 0; i < usuariosArray.length(); i++) {
+            JSONObject usuarioJson = usuariosArray.getJSONObject(i);
+            int id = usuarioJson.getInt("id");
+
+            // Si encontramos el usuario con el mismo ID, lo modificamos
+            if (id == usuarioModificado.getId()) {
+                // Llamar al método objectToJson() para convertir el usuario modificado a un JSONObject
+                JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
+                JSONObject usuarioModificadoJson = jsonUtilUsuario.objectToJson(usuarioModificado);
+
+                // Reemplazar el usuario en la posición correspondiente
+                usuariosArray.put(i, usuarioModificadoJson);
+                break;
+            }
+        }
+
+        // Guardar los usuarios modificados de vuelta al archivo
+        writeJsonToFile(ARCHIVO_USUARIOS, new JSONObject().put("usuarios", usuariosArray));
+    }
+
+
+    // Implementación del método guardarUsuariosEnArchivo según tu estructura
     public static void guardarUsuariosEnArchivo(HashMap<String, Usuario> usuarios) throws IOException {
         ArrayList<Usuario> listaUsuarios = new ArrayList<>(usuarios.values());
 
         // Ordenar la lista de usuarios por ID
         Collections.sort(listaUsuarios, Comparator.comparingInt(Usuario::getId));
 
-        JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
+        JsonUtilAnime jsonUtilAnime = new JsonUtilAnime(); // Crear instancia de JsonUtilAnime
+
         // Convertir la lista ordenada en un JSONArray
         JSONArray usuariosJson = new JSONArray();
         for (Usuario usuario : listaUsuarios) {
-            // Llamar al método objectToJson() estático
-            usuariosJson.put(jsonUtilUsuario.objectToJson(usuario));
+            JSONObject usuarioJson = new JSONObject();
+            usuarioJson.put("id", usuario.getId());
+            usuarioJson.put("nombre", usuario.getNombre());
+            usuarioJson.put("email", usuario.getEmail());
+            usuarioJson.put("contraseña", usuario.getContraseña());
+
+            // Convertir la lista de animes del usuario usando JsonUtilAnime.listToJsonUsuario
+            JSONArray listaAnimeJson = jsonUtilAnime.listToJsonUsuario(usuario.getAnimes());
+            usuarioJson.put("listaAnime", listaAnimeJson);
+
+            usuariosJson.put(usuarioJson); // Agrega el JSON del usuario al JSONArray
         }
 
         // Guardar en el archivo
