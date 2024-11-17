@@ -156,5 +156,22 @@ public class JsonUtilAnime extends JsonUtil {
         return listaDeAnimes;
     }
 
+    // Método para mostrar animes cargados desde un archivo JSON
+    public void mostrarAnimesConsola(String archivoDestino) {
+        List<Anime> listaDeAnimes = cargarAnimesDesdeArchivo(archivoDestino);
+
+        if (listaDeAnimes != null && !listaDeAnimes.isEmpty()) {
+            System.out.println("---- Lista de Animes ----");
+            for (Anime anime : listaDeAnimes) {
+                System.out.printf("ID: %d%n", anime.getId());
+                System.out.printf("Título: %s%n", anime.getTitle());
+                System.out.printf("Puntaje: %.2f | Estado: %s%n", anime.getScore(), anime.getStatus());
+                System.out.println("----------------------------------------");
+            }
+        } else {
+            System.out.println("No se encontraron animes para mostrar.");
+        }
+    }
+
 
 }
