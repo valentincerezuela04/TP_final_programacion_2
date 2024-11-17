@@ -1,0 +1,18 @@
+{"usuarios": [{
+    "animeList": [{
+        "score": 8.7,
+        "members": 5000,
+        "popularity": 855,
+        "rank": 1,
+        "vistoONo": "NO_VISTO",
+        "id": 1,
+        "synopsis": "Naruto es un joven ninja...",
+        "title": "Naruto",
+        "episodes": 220,
+        "status": "Airing"
+    }],
+    "id": 1,
+    "nombre": "juan123",
+    "email": "juan@example.com",
+    "contraseña": "Argentina10"
+}]}
