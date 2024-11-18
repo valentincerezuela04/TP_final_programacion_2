@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class GestorAdminAnime extends  GestorAdmin{
-    public static final String PATH_ANIME = "Animes.json";
+    public static final String PATH_ANIME = "Anime.json";
 
     public GestorAdminAnime() {
         super(PATH_ANIME);

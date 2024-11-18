@@ -9,8 +9,8 @@ import java.util.Scanner;
 
 public class MenuAdmin {
 
-    public static final String PATH_MANGA = "Mangas.json";
-    public static final String PATH_ANIME = "Animes.json";
+    public static final String PATH_MANGA = "Manga.json";
+    public static final String PATH_ANIME = "Anime.json";
     private Scanner scanner = new Scanner(System.in);
 
     public void mostrarMenuAdmin() {

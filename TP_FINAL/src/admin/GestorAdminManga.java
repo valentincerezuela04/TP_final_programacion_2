@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class GestorAdminManga extends GestorAdmin {
-    public static final String PATH_MANGA = "Mangas.json";
+    public static final String PATH_MANGA = "Manga.json";
 
     public GestorAdminManga() {
         super(PATH_MANGA);
