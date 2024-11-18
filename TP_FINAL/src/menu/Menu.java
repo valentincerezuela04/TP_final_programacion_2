@@ -9,6 +9,7 @@ import contenido.Contenido;
 import contenido.Manga;
 import excepciones.*;
 import gestores.GestorContenido;
+import gestores.GestorExcepciones;
 import gestores.GestorUsuarios;
 import manejo_json.JsonUtilUsuario;
 import usuario.Usuario;
@@ -44,13 +45,7 @@ public class Menu {
 
             switch (opcion) {
                 case 1:
-                    try {
-                        menuIniciarSesion();
-                    } catch (UsuarioNoEncontradoException e) {
-                        GestorExcepciones.manejarUsuarioNoEncontrado(e); // Manejo de error de usuario no encontrado
-                    } catch (ContrasenaInvalidaException e) {
-                        GestorExcepciones.manejarContrasenaInvalida(e); // Manejo de error de contraseña inválida
-                    }
+                    menuIniciarSesion(); // El manejo de excepciones ya está en el método menuIniciarSesion
                     break;
                 case 2:
                     menuCrearCuenta();
@@ -66,33 +61,27 @@ public class Menu {
         System.exit(0);
     }
 
-
     // Método para iniciar sesión
-    public void menuIniciarSesion() throws UsuarioNoEncontradoException, ContrasenaInvalidaException {
+    public void menuIniciarSesion() {
         System.out.print("Ingrese su nombre de usuario: ");
         String nombre = scanner.nextLine();
         System.out.print("Ingrese su contraseña: ");
         String contraseña = scanner.nextLine();
 
         try {
+            // Intentamos iniciar sesión con el nombre y la contraseña
             Usuario usuario = gestorUsuarios.iniciarSesion(nombre, contraseña);
 
-            if (usuario == null) {
-                throw new UsuarioNoEncontradoException("El nombre de usuario no existe.");
-            }
-
-            if (!usuario.getContraseña().equals(contraseña)) {
-                throw new ContrasenaInvalidaException("Contraseña incorrecta.");
-            }
-
+            // Si todo está bien, iniciamos sesión
             System.out.println("Inicio de sesión exitoso. Bienvenido, " + usuario.getNombre() + "!");
             menuUsuario(usuario);
-        } catch (UsuarioNoEncontradoException e) {
-            // Si el usuario no existe, manejar la excepción
-            GestorExcepciones.manejarUsuarioNoEncontrado(e);
-        } catch (ContrasenaInvalidaException e) {
-            // Si la contraseña no es correcta, manejar la excepción
-            GestorExcepciones.manejarContrasenaInvalida(e);
+
+        } catch (LoginException e) {
+            // Manejo de la excepción LoginException
+            GestorExcepciones.manejarLoginException(e);
+        } catch (Exception e) {
+            // Manejo de cualquier otra excepción no prevista
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
@@ -103,47 +92,58 @@ public class Menu {
         System.out.print("Ingrese su nombre de usuario: ");
         String nombre = scanner.nextLine();
 
-        System.out.print("Ingrese su email: ");
-        String email = scanner.nextLine();
+        String email;
+        while (true) {
+            System.out.print("Ingrese su email: ");
+            email = scanner.nextLine();
 
-        String contraseña, confirmacionContraseña;
+            try {
+                ValidacionUsuario.esEmailValido(email);
+                break;
+            } catch (EmailInvalidoException e) {
+                GestorExcepciones.manejarEmailInvalido(e);
+            }
+        }
 
-        // Solicitar la contraseña dos veces
-        do {
+        String contraseña;
+        while (true) {
             System.out.print("Ingrese su contraseña: ");
             contraseña = scanner.nextLine();
 
+            try {
+                ValidacionUsuario.esContraseñaValida(contraseña);
+                break;
+            } catch (ContrasenaInvalidaException e) {
+                GestorExcepciones.manejarContrasenaInvalida(e);
+            }
+        }
+
+        String confirmacionContraseña;
+        while (true) {
             System.out.print("Confirme su contraseña: ");
             confirmacionContraseña = scanner.nextLine();
 
             if (!contraseña.equals(confirmacionContraseña)) {
-                System.out.println("Las contraseñas no coinciden. Intente nuevamente.");
-            }
-        } while (!contraseña.equals(confirmacionContraseña)); // Repetir hasta que las contraseñas coincidan
-
-        try {
-            // Verificar que la contraseña cumpla con el patrón antes de proceder
-            if (!ValidacionUsuario.esContraseñaValida(contraseña)) {
-                System.out.println("Error: La contraseña no cumple con los requisitos de seguridad.");
-                return; // Salir del método si la contraseña no es válida
-            }
-
-            // Validación del email
-            ValidacionUsuario.esEmailValido(email);
-
-            // Crear usuario y registrarlo
-            Usuario nuevoUsuario = new Usuario(nombre, contraseña, email);
-            Usuario usuarioRegistrado = gestorUsuarios.registrarUsuario(nuevoUsuario);
-
-            if (usuarioRegistrado != null) {
-                System.out.println("Cuenta creada exitosamente.");
+                GestorExcepciones.manejarContrasenasNoCoinciden(new ContrasenasNoCoincidenException("Las contraseñas no coinciden."));
             } else {
-                System.out.println("No se pudo crear la cuenta. Es posible que el usuario ya esté registrado.");
+                break;
             }
-        } catch (EmailInvalidoException | ContrasenaInvalidaException e) {
-            System.out.println("Error en la creación de la cuenta: " + e.getMessage());
         }
 
+        try {
+            Usuario nuevoUsuario = new Usuario(nombre, contraseña, email);
+
+            // Intentar registrar el usuario (este método lanza la excepción si el usuario ya existe)
+            Usuario usuarioRegistrado = gestorUsuarios.registrarUsuario(nuevoUsuario);
+            System.out.println("Cuenta creada exitosamente.");
+
+        } catch (UsuarioRepetidoException e) {
+            // Manejo de excepción de usuario repetido
+            GestorExcepciones.manejarUsuarioRepetido(e);
+        } catch (Exception e) {
+            // Manejo de otras excepciones genéricas
+            GestorExcepciones.manejarExcepcion(e);
+        }
     }
 
     public void menuUsuario(Usuario usuario) {
@@ -203,6 +203,12 @@ public class Menu {
             switch (opcion) {
                 case 1:
                     gestorContenido.mostrarContenidoUsuario(usuario, tipoContenido);
+                    // Llamar al método para ordenar la lista después de mostrarla
+                    if (tipoContenido.equalsIgnoreCase(tipoAnime)) {
+                        menuOrdenarListaPersonal(usuario, tipoAnime, Anime.class);
+                    } else if (tipoContenido.equalsIgnoreCase(tipoManga)) {
+                        menuOrdenarListaPersonal(usuario, tipoManga, Manga.class);
+                    }
                     break;
                 case 2:
                     if (tipoContenido.equalsIgnoreCase(tipoAnime)) {
@@ -222,10 +228,57 @@ public class Menu {
                     try {
                         menuCambiarEstadoContenido(usuario, tipoContenido); // Llamamos al método que puede lanzar la excepción
                     } catch (ContenidoNoEncontradoException e) {
-                        System.out.println("Error: " + e.getMessage()); // Imprimimos el mensaje de la excepción
+                        GestorExcepciones.manejarContenidoNoEncontrado(e); // Delegamos el manejo a GestorExcepciones
                     } catch (IOException e) {
-                        System.out.println("Error al guardar los cambios: " + e.getMessage()); // En caso de error al guardar en el archivo
+                        GestorExcepciones.manejarIOException(e); // Delegamos el manejo a GestorExcepciones
+                    } catch (Exception e) {
+                        GestorExcepciones.manejarExcepcion(e); // Manejo de cualquier otra excepción no prevista
                     }
+                    break;
+                case 5:
+                    continuar = false; // Volver atrás
+                    break;
+                default:
+                    System.out.println("Opción no válida. Intente nuevamente.");
+            }
+        } while (continuar);
+    }
+
+    public <T extends Contenido> void menuOrdenarListaPersonal(Usuario usuario, String tipoContenido, Class<T> tipoClase) {
+        int opcion;
+        boolean continuar = true;
+
+        do {
+            System.out.println("---- Ordenar Mi Lista de " + tipoContenido.substring(0, 1).toUpperCase() + tipoContenido.substring(1) + "s ----");
+            System.out.println("1. Ordenar por ID");
+            System.out.println("2. Ordenar por Título");
+            System.out.println("3. Ordenar por Popularidad");
+            System.out.println("4. Ordenar por Puntuación");
+            System.out.println("5. Atrás");
+            System.out.print("Seleccione una opción: ");
+            opcion = scanner.nextInt();
+            scanner.nextLine(); // Limpiar el buffer
+
+            switch (opcion) {
+                case 1:
+                    // Ordenar por ID
+                    List<T> listaOrdenadaPorId = gestorContenido.ordenarListaPersonal(usuario, tipoContenido, "id");
+                    gestorContenido.mostrarContenidoOrdenado(listaOrdenadaPorId);
+                    break;
+                case 2:
+                    // Ordenar por Título
+                    List<T> listaOrdenadaPorTitulo = gestorContenido.ordenarListaPersonal(usuario, tipoContenido, "titulo");
+                    gestorContenido.mostrarContenidoOrdenado(listaOrdenadaPorTitulo);
+                    break;
+                case 3:
+                    // Ordenar por Popularidad
+                    List<T> listaOrdenadaPorPopularidad = gestorContenido.ordenarListaPersonal(usuario, tipoContenido, "popularidad");
+                    gestorContenido.mostrarContenidoOrdenado(listaOrdenadaPorPopularidad);
+                    break;
+                case 4:
+                    // Ordenar por Puntuación
+                    List<T> listaOrdenadaPorScore = gestorContenido.ordenarListaPersonal(usuario, tipoContenido, "score");
+                    gestorContenido.mostrarContenidoOrdenado(listaOrdenadaPorScore);
                     break;
                 case 5:
                     continuar = false; // Volver atrás
@@ -245,7 +298,7 @@ public class Menu {
             System.out.println("---- Menú Agregar " + tipoContenido.substring(0, 1).toUpperCase() + tipoContenido.substring(1) + " ----");
             System.out.println("1. Buscar por ID");
             System.out.println("2. Buscar por Nombre");
-            System.out.println("3. Ordenar por");
+            System.out.println("3. Ordenar por (Esto solo afecta la lista global)");
             System.out.println("4. Atrás");
             System.out.print("Seleccione una opción: ");
             opcion = scanner.nextInt();
@@ -292,35 +345,29 @@ public class Menu {
 
         try {
             // Determinar el archivo a usar según el tipo de contenido
-            String archivoContenido;
-            if (tipoContenido.equals(Anime.class)) {
-                archivoContenido = ARCHIVO_ANIMES;
-            } else if (tipoContenido.equals(Manga.class)) {
-                archivoContenido = ARCHIVO_MANGAS;
-            } else {
-                throw new IllegalArgumentException("Tipo de contenido no válido");
+            String archivoContenido = tipoContenido.equals(Anime.class) ? ARCHIVO_ANIMES : tipoContenido.equals(Manga.class) ? ARCHIVO_MANGAS : null;
+
+            if (archivoContenido == null) {
+                throw new IllegalArgumentException("Tipo de contenido no válido.");
             }
 
-            // Usar el método genérico buscarContenidoPorId para buscar el contenido seleccionado
+            // Buscar el contenido por ID
             Contenido contenidoSeleccionado = gestorContenido.buscarContenidoPorId(archivoContenido, idContenido, tipoContenido);
 
             if (contenidoSeleccionado != null) {
-                // Asignar el estado utilizando el método genérico asignarEstadoContenido
-                gestorContenido.asignarEstadoContenido(contenidoSeleccionado);
-
-                // Agregar el contenido al usuario usando el método genérico agregarContenido
+                // Asignar el estado y agregar el contenido al usuario, verificando duplicados
                 gestorContenido.agregarContenido(usuario, contenidoSeleccionado);
-            } else {
-                System.out.println("No se encontró el contenido con el ID ingresado.");
             }
         } catch (ContenidoNoEncontradoException e) {
-            System.err.println("Error: " + e.getMessage() + ". Por favor, intente nuevamente con un ID válido.");
+            GestorExcepciones.manejarContenidoNoEncontrado(e);
         } catch (ContenidoDuplicadoException e) {
-            System.err.println("Error: " + e.getMessage());
+            GestorExcepciones.manejarContenidoDuplicado(e);
         } catch (IOException e) {
-            System.err.println("Error al guardar los cambios en el archivo JSON: " + e.getMessage());
+            GestorExcepciones.manejarIOException(e);
+        } catch (IllegalArgumentException e) {
+            GestorExcepciones.manejarIllegalArgumentException(e);
         } catch (Exception e) {
-            System.err.println("Ocurrió un error inesperado: " + e.getMessage());
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
@@ -329,38 +376,28 @@ public class Menu {
         String nombreContenido = scanner.nextLine();
 
         try {
-            String archivoContenido = "";  // Variable para almacenar el archivo correcto
+            // Determinar el archivo a usar según el tipo de contenido
+            String archivoContenido = tipoContenido.equals(Anime.class) ? ARCHIVO_ANIMES : tipoContenido.equals(Manga.class) ? ARCHIVO_MANGAS : null;
 
-            // Determinar el archivo correcto según el tipo de contenido
-            if (tipoContenido == Anime.class) {
-                archivoContenido = ARCHIVO_ANIMES;
-            } else if (tipoContenido == Manga.class) {
-                archivoContenido = ARCHIVO_MANGAS;
-            } else {
+            if (archivoContenido == null) {
                 throw new IllegalArgumentException("Tipo de contenido no válido.");
             }
 
-            // Intentar buscar el contenido por nombre utilizando el archivo correcto
+            // Buscar el contenido por nombre
             Contenido contenidoSeleccionado = gestorContenido.buscarContenidoPorNombre(archivoContenido, nombreContenido, tipoContenido);
 
             if (contenidoSeleccionado != null) {
-                // Asignar el estado al contenido utilizando el método genérico
-                gestorContenido.asignarEstadoContenido(contenidoSeleccionado);
-
-                // Agregar el contenido al usuario utilizando el método genérico
+                // Asignar el estado y agregar el contenido al usuario, verificando duplicados
                 gestorContenido.agregarContenido(usuario, contenidoSeleccionado);
-            } else {
-                System.out.println("No se encontró un contenido con el nombre ingresado.");
             }
         } catch (ContenidoNoEncontradoException e) {
-            System.err.println("Error: " + e.getMessage() + ". Por favor, intente nuevamente con un nombre válido.");
+            GestorExcepciones.manejarContenidoNoEncontrado(e);
         } catch (IOException e) {
-            System.err.println("Error al guardar los cambios en el archivo JSON: " + e.getMessage());
+            GestorExcepciones.manejarIOException(e);
         } catch (Exception e) {
-            System.err.println("Ocurrió un error inesperado: " + e.getMessage());
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
-
 
     public <T> void menuOrdenarContenido(Usuario usuario, String archivo, Class<T> tipoContenido, String tipo) {
         int opcion;
@@ -371,7 +408,7 @@ public class Menu {
             System.out.println("1. Ordenar por ID");
             System.out.println("2. Ordenar por Título");
             System.out.println("3. Ordenar por Popularidad");
-            System.out.println("4. Ordenar por Score");
+            System.out.println("4. Ordenar por Puntuación");
             System.out.println("5. Atrás");
             System.out.print("Seleccione una opción: ");
             opcion = scanner.nextInt();
@@ -412,8 +449,8 @@ public class Menu {
         gestorContenido.mostrarContenidoUsuario(usuario, tipoContenido);
 
         // Verificar si la lista está vacía
-        if (tipoContenido.equalsIgnoreCase("anime") && usuario.getAnimes().isEmpty() ||
-                tipoContenido.equalsIgnoreCase("manga") && usuario.getMangas().isEmpty()) {
+        if ((tipoContenido.equalsIgnoreCase("anime") && usuario.getAnimes().isEmpty()) ||
+                (tipoContenido.equalsIgnoreCase("manga") && usuario.getMangas().isEmpty())) {
             System.out.println("No tienes " + tipoContenido + "s en tu lista para eliminar.");
             return;
         }
@@ -430,64 +467,52 @@ public class Menu {
             JsonUtilUsuario.modificarUsuarioEnArchivo(usuario);
             System.out.println("Los cambios han sido guardados en el archivo JSON.");
         } catch (ContenidoNoEncontradoException e) {
-            // Manejo de la excepción si el contenido no se encuentra
-            System.err.println("Error: " + e.getMessage());
+            // Centralizar el manejo de la excepción en un gestor
+            GestorExcepciones.manejarContenidoNoEncontrado(e);
         } catch (IOException e) {
-            // Manejo de error en el archivo JSON
-            System.err.println("Error al guardar los cambios en el archivo JSON: " + e.getMessage());
+            // Manejar error al guardar cambios en el archivo JSON
+            GestorExcepciones.manejarIOException(e);
+        } catch (Exception e) {
+            // Manejo general de excepciones no previstas
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
-    public void menuCambiarEstadoContenido(Usuario usuario, String tipoContenido) throws ContenidoNoEncontradoException, IOException {
+    public void menuCambiarEstadoContenido(Usuario usuario, String tipoContenido) throws ContenidoNoEncontradoException, IllegalArgumentException, IOException {
+        // Mostrar los contenidos del usuario según el tipo
         gestorContenido.mostrarContenidoUsuario(usuario, tipoContenido);
 
         System.out.print("Ingrese el ID del contenido cuyo estado desea cambiar: ");
         int id = scanner.nextInt();
         scanner.nextLine(); // Limpiar el buffer
+
         JsonUtilUsuario jsonUtilUsuario = new JsonUtilUsuario();
 
+        try {
+            // Determinar el archivo a usar según el tipo de contenido
+            String archivoContenido = tipoContenido.equalsIgnoreCase("Anime") ? ARCHIVO_ANIMES : tipoContenido.equalsIgnoreCase("Manga") ? ARCHIVO_MANGAS : null;
 
-        if (tipoContenido.equalsIgnoreCase("Anime")) {
-            // Buscar el anime por ID utilizando un bucle tradicional
-            Anime animeSeleccionado = null;
-            for (Anime anime : usuario.getAnimes()) {
-                if (anime.getId() == id) {
-                    animeSeleccionado = anime;
-                    break;  // Encontramos el anime, salimos del bucle
-                }
+            if (archivoContenido == null) {
+                throw new IllegalArgumentException("Tipo de contenido no válido. Debe ser 'Anime' o 'Manga'.");
             }
 
-            if (animeSeleccionado != null) {
-                // Cambiar el estado del anime
-                gestorContenido.asignarEstadoContenido(animeSeleccionado);
-                // Modificar el usuario en el archivo con el estado actualizado
+            // Buscar el contenido por ID
+            Contenido contenidoSeleccionado = gestorContenido.buscarContenidoPorId(archivoContenido, id, tipoContenido.equalsIgnoreCase("Anime") ? Anime.class : Manga.class);
+
+            if (contenidoSeleccionado != null) {
+                // Cambiar el estado del contenido
+                gestorContenido.asignarEstadoContenido(contenidoSeleccionado, usuario);
+                System.out.println("Nuevo estado asignado exitosamente.");
+
+                // Guardar los cambios del usuario en el archivo
                 jsonUtilUsuario.modificarUsuarioEnArchivo(usuario);
             } else {
-                throw new ContenidoNoEncontradoException("No se encontró un anime con el ID proporcionado.");
+                throw new ContenidoNoEncontradoException("No se encontró contenido con el ID proporcionado.");
             }
-        } else if (tipoContenido.equalsIgnoreCase("Manga")) {
-            // Buscar el manga por ID utilizando un bucle tradicional
-            Manga mangaSeleccionado = null;
-            for (Manga manga : usuario.getMangas()) {
-                if (manga.getId() == id) {
-                    mangaSeleccionado = manga;
-                    break;  // Encontramos el manga, salimos del bucle
-                }
-            }
-
-            if (mangaSeleccionado != null) {
-                // Cambiar el estado del manga
-                gestorContenido.asignarEstadoContenido(mangaSeleccionado);
-                // Modificar el usuario en el archivo con el estado actualizado
-                jsonUtilUsuario.modificarUsuarioEnArchivo(usuario);
-            } else {
-                throw new ContenidoNoEncontradoException("No se encontró un manga con el ID proporcionado.");
-            }
-        } else {
-            System.out.println("Tipo de contenido no válido.");
+        } catch (Exception e) {
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
-
 
     public boolean menuOpcionesUsuario(Usuario usuario) {
         int opcion;
@@ -531,12 +556,18 @@ public class Menu {
         return continuarEnMenu; // Retorna si se debe continuar o no en el menú
     }
 
-
-
-
     public void opcionCambiarContrasena(Usuario usuario) {
         System.out.print("Ingrese su contraseña actual: ");
         String contrasenaActual = scanner.nextLine();
+
+        // Verificar si la contraseña actual es correcta
+        if (!usuario.getContraseña().equals(contrasenaActual)) {
+            // Si la contraseña no coincide, se notifica al usuario y se termina el proceso
+            System.out.println("La contraseña actual no es correcta. No se puede cambiar la contraseña.");
+            return; // Termina el método, evitando que el usuario ingrese una nueva contraseña
+        }
+
+        // Si la contraseña actual es correcta, pedir la nueva contraseña
         System.out.print("Ingrese la nueva contraseña: ");
         String nuevaContrasena = scanner.nextLine();
 
@@ -546,17 +577,14 @@ public class Menu {
             System.out.println("Contraseña actualizada correctamente.");
 
             // Intentamos actualizar el usuario en el archivo
-            JsonUtilUsuario.actualizarUsuarioEnArchivo(usuario);
+            JsonUtilUsuario.modificarUsuarioEnArchivo(usuario);
 
         } catch (ContrasenaInvalidaException e) {
-            // Si la contraseña es inválida
-            System.out.println("Error: " + e.getMessage());
-        } catch (EmailInvalidoException e) {
-            // Si el email es inválido
-            System.out.println("Error en el email: " + e.getMessage());
+            // Si la nueva contraseña es inválida, manejar el error
+            GestorExcepciones.manejarContrasenaInvalida(e);
         } catch (IOException e) {
-            // Si hay problemas con el archivo (lectura o escritura)
-            System.out.println("Error al actualizar el archivo: " + e.getMessage());
+            // Si hay problemas con el archivo (lectura o escritura), manejar el error
+            GestorExcepciones.manejarIOException(e);
         }
     }
 
@@ -569,51 +597,49 @@ public class Menu {
             usuario.cambiarEmail(contrasenaActual, nuevoEmail);
             System.out.println("Email actualizado correctamente.");
             // Intentamos actualizar el usuario en el archivo
-            JsonUtilUsuario.actualizarUsuarioEnArchivo(usuario);
+            JsonUtilUsuario.modificarUsuarioEnArchivo(usuario);
         } catch (ContrasenaInvalidaException e) {
-            System.out.println("Error: " + e.getMessage());
+            GestorExcepciones.manejarContrasenaInvalida(e);
         } catch (EmailInvalidoException e) {
-            System.out.println("Error: " + e.getMessage());
+            GestorExcepciones.manejarEmailInvalido(e);
         } catch (IOException e) {
-            System.out.println("Error al actualizar el archivo: " + e.getMessage());
+           GestorExcepciones.manejarIOException(e);
         }
     }
-
-
     public void opcionCambiarNombreUsuario(Usuario usuario) {
         System.out.print("Ingrese el nuevo nombre de usuario: ");
         String nuevoNombre = scanner.nextLine();
         System.out.print("Ingrese su contraseña actual: ");
         String contrasenaActual = scanner.nextLine();
-
         try {
-            usuario.cambiarNombreUsuario(contrasenaActual, nuevoNombre);
-            System.out.println("Nombre de usuario actualizado correctamente.");
-            // Intentamos actualizar el usuario en el archivo
-            JsonUtilUsuario.actualizarUsuarioEnArchivo(usuario);
+            usuario.cambiarNombreUsuario(contrasenaActual, nuevoNombre, gestorUsuarios);
         } catch (ContrasenaInvalidaException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (EmailInvalidoException e) {
-            System.out.println("Error en el email: " + e.getMessage());
+            GestorExcepciones.manejarContrasenaInvalida(e);
         } catch (IOException e) {
-            System.out.println("Error al actualizar el archivo: " + e.getMessage());
+            GestorExcepciones.manejarIOException(e);
+        } catch (Exception e) {
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
+
 
     public void opcionEliminarCuenta(Usuario usuario) {
         System.out.print("Ingrese su contraseña actual para confirmar eliminación: ");
         String contrasenaActual = scanner.nextLine();
         try {
             if (usuario.getContraseña().equals(contrasenaActual)) {
-                gestorUsuarios.eliminarUsuario(usuario);  // Llama al método en GestorUsuarios para eliminar
-                System.out.println("Cuenta eliminada correctamente.");
+                gestorUsuarios.eliminarUsuario(usuario);  // Llama al método en GestorUsuarios
             } else {
                 throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo eliminar la cuenta.");
             }
         } catch (ContrasenaInvalidaException e) {
-            System.out.println(e.getMessage());
+            GestorExcepciones.manejarContrasenaInvalida(e);
+        } catch (Exception e) {
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
+
+
 
 
 

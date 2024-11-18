@@ -3,6 +3,7 @@ package manejo_json;
 import contenido.Anime;
 import contenido.Manga;
 import contenido.EstadoVisto;
+import gestores.GestorExcepciones;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -30,12 +31,11 @@ public class JsonUtilManga extends JsonUtil {
         json.put("popularity", manga.getPopularity());
         json.put("rank", manga.getRank());
         json.put("synopsis", manga.getSynopsis());
-        json.put("vistoONo", manga.getVistoONo().name());
 
         return json;
     }
 
-    public JSONObject objectToJsonModificado(Object obj){
+    public JSONObject objectToJsonModificado(Object obj) {
         Manga manga = (Manga) obj;
         JSONObject json = new JSONObject();
 
@@ -64,12 +64,12 @@ public class JsonUtilManga extends JsonUtil {
         int rank = jsonObject.optInt("rank", 0);
         String synopsis = jsonObject.optString("synopsis", "Sin sinopsis disponible");
 
-        // Obtener el valor de "vistoONo" con optString y asignar el valor predeterminado "NO_VISTO" si no está presente
-        String vistoONoValue = jsonObject.optString("vistoONo", "NO_VISTO");
-        EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoValue);
+// Verificar si el campo "vistoONo" está presente y es válido
+        String vistoONoString = jsonObject.optString("vistoONo", "NO_VISTO"); // Valor predeterminado
+        EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoString);
 
         // Crear y devolver el objeto Manga con los datos extraídos
-        return new Manga(id, members, title, popularity, rank, score, status, synopsis, title, vistoONo, chapters, volumes);
+        return new Manga(id, members, popularity, rank, score, status, synopsis, title, vistoONo, chapters, volumes);
     }
 
     // para guardarListaAnimeEnArchivo(que se utiliza en la clase de api del manga)
@@ -88,11 +88,29 @@ public class JsonUtilManga extends JsonUtil {
             json.put("popularity", manga.getPopularity());
             json.put("rank", manga.getRank());
             json.put("synopsis", manga.getSynopsis());
-            json.put("vistoONo", manga.getVistoONo().name());
             json.put("chapters", manga.getChapters());
             json.put("volumes", manga.getVolumes());
 
             jsonArray.put(json);
+        }
+
+        return jsonArray;
+    }
+
+    public static JSONArray listToJsonUsuario(List<Manga> mangaList) {
+        JSONArray jsonArray = new JSONArray();
+
+        for (Manga manga : mangaList) {
+            JSONObject json = new JSONObject();
+            json.put("id", manga.getId());
+            json.put("title", manga.getTitle());
+            json.put("popularity", manga.getPopularity());
+            json.put("score", manga.getScore());
+            json.put("volumes", manga.getVolumes());
+            json.put("chapters", manga.getChapters());
+            json.put("vistoONo", manga.getVistoONo());
+
+            jsonArray.put(json); // Agrega el JSON del manga al JSONArray
         }
 
         return jsonArray;
@@ -107,8 +125,7 @@ public class JsonUtilManga extends JsonUtil {
             file.write(mangaJson.toString(4));  // Escribir el JSON con indentación de 4 espacios
             file.flush();
         } catch (IOException e) {
-            System.out.println("Error al guardar el archivo.");
-            e.printStackTrace();
+            GestorExcepciones.manejarIOException(e);
         }
     }
 
@@ -144,8 +161,7 @@ public class JsonUtilManga extends JsonUtil {
                 listaDeMangas.add(manga);
             }
         } catch (IOException e) {
-            System.out.println("Error al leer el archivo JSON: " + e.getMessage());
-            e.printStackTrace();
+            GestorExcepciones.manejarIOException(e);
         }
 
         return listaDeMangas;

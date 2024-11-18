@@ -1,8 +1,6 @@
 package gestores;
 
-import excepciones.ContrasenaInvalidaException;
-import excepciones.EmailInvalidoException;
-import excepciones.UsuarioNoEncontradoException;
+import excepciones.*;
 import manejo_json.JsonUtilUsuario;
 import usuario.Usuario;
 import usuario.ValidacionUsuario;
@@ -33,58 +31,71 @@ public class GestorUsuarios {
         return usuariosRegistrados;
     }
 
-    public Usuario registrarUsuario(Usuario usuario) {
+    public Usuario registrarUsuario(Usuario usuario) throws UsuarioRepetidoException {
+        // Verificar si el usuario ya está registrado
         if (!usuariosRegistrados.containsKey(usuario.getNombre())) {
             try {
-                ValidacionUsuario.esEmailValido(usuario.getEmail());
-                ValidacionUsuario.esContraseñaValida(usuario.getContraseña());
+                // Registrar el nuevo usuario
                 usuariosRegistrados.put(usuario.getNombre(), usuario);
+                // Guardar los cambios en el archivo
                 jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
-                return usuario;
-            } catch (EmailInvalidoException | ContrasenaInvalidaException e) {
-                System.out.println("Error de validación: " + e.getMessage());
-                return null;
+                return usuario; // Devolver el usuario registrado
             } catch (IOException e) {
-                System.out.println("Error al guardar el usuario: " + e.getMessage());
-                return null;
+                // Manejar el error de entrada/salida
+                GestorExcepciones.manejarIOException(e);
+                return null; // Retornar null si ocurrió un error
             }
         } else {
-            System.out.println("El usuario ya está registrado.");
-            return null;
+            // Lanzar una excepción de usuario repetido
+            throw new UsuarioRepetidoException("El usuario ya está registrado.");
         }
     }
 
-    public Usuario iniciarSesion(String nombreUsuario, String contraseña) throws UsuarioNoEncontradoException, ContrasenaInvalidaException {
+    public Usuario iniciarSesion(String nombreUsuario, String contraseña) throws LoginException {
         if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
-            throw new UsuarioNoEncontradoException("El nombre de usuario no puede estar vacío.");
+            throw new LoginException("El nombre de usuario no puede estar vacío.");
         }
 
         Usuario usuario = usuariosRegistrados.get(nombreUsuario);
 
         if (usuario == null) {
-            throw new UsuarioNoEncontradoException("No existe una cuenta con el nombre de usuario ingresado.");
+            throw new LoginException("No existe una cuenta con el nombre de usuario ingresado.");
         }
 
         if (!ValidacionUsuario.verificarContraseña(usuario.getContraseña(), contraseña)) {
-            throw new ContrasenaInvalidaException("La contraseña ingresada es incorrecta.");
+            throw new LoginException("La contraseña ingresada es incorrecta.");
         }
 
         return usuario;
     }
 
+
     public void eliminarUsuario(Usuario usuario) {
-        if (usuariosRegistrados.containsKey(usuario.getNombre())) {
-            usuariosRegistrados.remove(usuario.getNombre());
-            actualizarIdsUsuarios();
-            try {
+        try {
+            if (usuariosRegistrados.containsKey(usuario.getNombre())) {
+                // Primero eliminamos del mapa
+                usuariosRegistrados.remove(usuario.getNombre());
+                // Actualizamos los IDs antes de guardar
+                actualizarIdsUsuarios();
+                // Guardamos en el archivo JSON
                 jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
-            } catch (IOException e) {
-                System.out.println("Error al actualizar el archivo de usuarios: " + e.getMessage());
+                // Mensaje exitoso solo si todo se realiza correctamente
+                System.out.println("Usuario eliminado correctamente.");
+            } else {
+                throw new UsuarioNoEncontradoException("Usuario no encontrado en el sistema.");
             }
-        } else {
-            System.out.println("Usuario no encontrado en el sistema.");
+        } catch (UsuarioNoEncontradoException e) {
+            // Manejo de excepciones específico
+            GestorExcepciones.manejarUsuarioNoEncontrado(e);
+        } catch (IOException e) {
+            // Manejo de errores relacionados con IO
+            GestorExcepciones.manejarIOException(e);
+        } catch (Exception e) {
+            // Manejo de cualquier error imprevisto
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
+
 
     private void actualizarIdsUsuarios() {
         int nuevoId = 1;
@@ -92,6 +103,20 @@ public class GestorUsuarios {
             usuario.setId(nuevoId++);
         }
     }
+
+    public void actualizarNombreUsuario(String nombreAnterior, String nuevoNombre) throws IOException {
+        if (usuariosRegistrados.containsKey(nombreAnterior)) {
+            Usuario usuario = usuariosRegistrados.remove(nombreAnterior);
+            usuario.setNombre(nuevoNombre); // Cambiar el nombre en el objeto
+            usuariosRegistrados.put(nuevoNombre, usuario);
+
+            // Guardar los cambios en el archivo JSON
+            jsonUtilUsuario.guardarUsuariosEnArchivo(usuariosRegistrados);
+        } else {
+            System.out.println("El usuario con el nombre anterior no existe en el sistema.");
+        }
+    }
+
 
     public void listarUsuarios() {
         for (Usuario usuario : usuariosRegistrados.values()) {

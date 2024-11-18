@@ -4,7 +4,9 @@ import contenido.Anime;
 import contenido.Manga;
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
+import gestores.GestorUsuarios;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,6 +71,10 @@ public class Usuario {
         return id;
     }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -100,17 +106,21 @@ public class Usuario {
             // Validar el nuevo email
             if (ValidacionUsuario.esEmailValido(nuevoEmail)) {
                 this.email = nuevoEmail;  // Actualizar el email
-                System.out.println("Email actualizado correctamente.");
             }
         } else {
             throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el email.");
         }
     }
 
-    public void cambiarNombreUsuario(String contraseñaActual, String nuevoNombre) throws ContrasenaInvalidaException {
+    public void cambiarNombreUsuario(String contraseñaActual, String nuevoNombre, GestorUsuarios gestorUsuarios) throws ContrasenaInvalidaException, IOException {
         // Verificar que la contraseña ingresada coincida con la actual
         if (this.contraseña.equals(contraseñaActual)) {
+            String nombreAnterior = this.nombre;
             this.nombre = nuevoNombre;  // Actualizar el nombre de usuario
+
+            // Actualizar el gestor de usuarios
+            gestorUsuarios.actualizarNombreUsuario(nombreAnterior, nuevoNombre);
+
             System.out.println("Nombre de usuario actualizado correctamente.");
         } else {
             throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el nombre de usuario.");

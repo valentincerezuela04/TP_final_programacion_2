@@ -5,11 +5,10 @@ import java.util.Objects;
 public class Anime extends Contenido {
     private int episodes;
 
-    public Anime(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, EstadoVisto vistoONo, int episodes) {
+    public Anime(int id, int members, int popularity, int rank, double score, String status, String synopsis, String title, EstadoVisto vistoONo,  int episodes) {
         super(
                 id,
                 members,
-                name,
                 popularity,
                 rank,
                 score,
