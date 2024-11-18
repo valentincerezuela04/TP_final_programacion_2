@@ -166,4 +166,21 @@ public class JsonUtilManga extends JsonUtil {
 
         return listaDeMangas;
     }
+
+
+    public void mostrarMangasConsola(String archivoDestino) {
+        List<Manga> listaDeMangas = cargarMangasDesdeArchivo(archivoDestino);
+
+        if (listaDeMangas != null && !listaDeMangas.isEmpty()) {
+            System.out.println("---- Lista de Mangas ----");
+            for (Manga manga : listaDeMangas) {
+                System.out.printf("ID: %d%n", manga.getId());
+                System.out.printf("Título: %s%n", manga.getTitle());
+                System.out.printf("Puntaje: %.2f | Estado: %s%n", manga.getScore(), manga.getStatus());
+                System.out.println("----------------------------------------");
+            }
+        } else {
+            System.out.println("No se encontraron mangas para mostrar.");
+        }
+    }
 }
