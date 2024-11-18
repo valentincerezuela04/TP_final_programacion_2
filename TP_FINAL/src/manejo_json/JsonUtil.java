@@ -2,6 +2,7 @@ package manejo_json;
 
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
+import gestores.GestorExcepciones;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,10 +17,8 @@ public abstract class JsonUtil {
     public static void writeJsonToFile(String fileName, JSONObject jsonObject) {
         try (FileWriter file = new FileWriter(fileName)) {
             file.write(jsonObject.toString(4)); // Formato con indentación
-            System.out.println("Archivo JSON guardado correctamente en " + fileName);
         } catch (IOException e) {
-            System.out.println("Error al guardar el archivo JSON: " + e.getMessage());
-            e.printStackTrace();
+            GestorExcepciones.manejarIOException(e);
         }
     }
 
@@ -29,7 +28,7 @@ public abstract class JsonUtil {
             String content = new String(Files.readAllBytes(Paths.get(fileName)));
             return new JSONObject(content);
         } catch (IOException e) {
-            System.out.println("Error al leer el archivo JSON: " + e.getMessage());
+            GestorExcepciones.manejarIOException(e);
             return null;
         }
     }
@@ -40,7 +39,7 @@ public abstract class JsonUtil {
             String content = new String(Files.readAllBytes(Paths.get(fileName)));
             return new JSONArray(content);
         } catch (IOException e) {
-            System.out.println("Error al leer el archivo JSON: " + e.getMessage());
+            GestorExcepciones.manejarIOException(e);
             return null;
         }
     }

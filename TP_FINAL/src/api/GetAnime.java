@@ -1,6 +1,9 @@
 package api;
+
 import contenido.*;
 import manejo_json.*;
+import gestores.GestorExcepciones;
+import excepciones.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -9,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 
 public class GetAnime implements IApis {
 
@@ -29,9 +31,13 @@ public class GetAnime implements IApis {
             if (response.statusCode() == 200) {
                 return ("Response: " + response.body());
             } else {
-                return ("GET request failed: " + response.statusCode());
+                throw new PeticionApiException("La solicitud GET falló con el código de estado: " + response.statusCode());
             }
+        } catch (PeticionApiException e) {
+            GestorExcepciones.manejarPeticionApiException(e);
+            return e.getMessage();
         } catch (Exception e) {
+            GestorExcepciones.manejarExcepcion(e);
             return e.getMessage();
         }
     }
@@ -72,13 +78,17 @@ public class GetAnime implements IApis {
                     // Guardar el anime en un archivo usando JsonUtilAnime
                     JsonUtilAnime.guardarListaAnimeEnArchivo(lista_de_animes, archivoDestino);
                 } else {
-                    System.out.println("No se encontró el campo 'data' en la respuesta de la API.");
+                    throw new RespuestaApiException("No se encontró el campo 'data' en la respuesta de la API.");
                 }
             } else {
-                System.out.println("La solicitud GET falló con el código de estado: " + response.statusCode());
+                throw new PeticionApiException("La solicitud GET falló con el código de estado: " + response.statusCode());
             }
+        } catch (PeticionApiException e) {
+            GestorExcepciones.manejarPeticionApiException(e);
+        } catch (RespuestaApiException e) {
+            GestorExcepciones.manejarRespuestaApiException(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 }

@@ -6,6 +6,15 @@ import excepciones.EmailInvalidoException;
 public class ValidacionUsuario {
 
     private static final String REGLA_CONTRASENA = "^(?=.*[A-Z])(?=.*\\d)(?=\\S+$)[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ.]{8,}$";
+
+    private static final String DESCRIPCION_REGLA_CONTRASENA =
+            "La contraseña debe cumplir con los siguientes requisitos:\n" +
+                    "- Al menos una letra mayúscula.\n" +
+                    "- Al menos un número.\n" +
+                    "- Sin espacios.\n" +
+                    "- Al menos 8 caracteres.";
+
+
     private static final String REGLA_EMAIL = "^[\\w-\\.]+@[\\w-]+\\.[a-z]{2,}$";
 
     public static boolean verificarContraseña(String contraseñaGuardada, String contraseñaIngresada) {
@@ -21,7 +30,9 @@ public class ValidacionUsuario {
 
     public static boolean esContraseñaValida(String contraseña) throws ContrasenaInvalidaException {
         if (!contraseña.matches(REGLA_CONTRASENA)) {
-            throw new ContrasenaInvalidaException("La contraseña debe cumplir con los requisitos de seguridad.");
+            throw new ContrasenaInvalidaException(
+                    "La contraseña debe cumplir con los requisitos de seguridad:\n" + DESCRIPCION_REGLA_CONTRASENA
+            );
         }
         return true;
     }

@@ -2,6 +2,7 @@ package manejo_json;
 
 import contenido.Anime;
 import contenido.EstadoVisto;
+import gestores.GestorExcepciones;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,7 +26,6 @@ public class JsonUtilAnime extends JsonUtil {
         json.put("popularity", anime.getPopularity());
         json.put("rank", anime.getRank());
         json.put("synopsis", anime.getSynopsis());
-        json.put("vistoONo", anime.getVistoONo().name());
 
         return json;
     }
@@ -44,7 +44,7 @@ public class JsonUtilAnime extends JsonUtil {
         return json;
     }
 
-    public static JSONArray listToJsonPrueba(List<Anime> animeList) {
+    public static JSONArray listToJson(List<Anime> animeList) {
         JSONArray jsonArray = new JSONArray();
 
         for (Anime anime : animeList) {
@@ -59,7 +59,6 @@ public class JsonUtilAnime extends JsonUtil {
             json.put("popularity", anime.getPopularity());
             json.put("rank", anime.getRank());
             json.put("synopsis", anime.getSynopsis());
-            json.put("vistoONo", anime.getVistoONo().name());
 
             jsonArray.put(json);
         }
@@ -97,22 +96,22 @@ public class JsonUtilAnime extends JsonUtil {
         int rank = jsonObject.optInt("rank", 0);
         String synopsis = jsonObject.optString("synopsis", "Sin sinopsis disponible");
 
-        String vistoONoValue = jsonObject.optString("vistoONo", "NO_VISTO");
-        EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoValue);
+        // Verificar si el campo "vistoONo" está presente y es válido
+        String vistoONoString = jsonObject.optString("vistoONo", "NO_VISTO"); // Valor predeterminado
+        EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoString);
 
-        return new Anime(id, members, title, popularity, rank, score, status, synopsis, title, vistoONo, episodes);
+        return new Anime(id, members, popularity, rank, score, status, synopsis, title, vistoONo, episodes);
     }
 
     // Método para guardar la lista de animes en un archivo JSON
     public static void guardarListaAnimeEnArchivo(List<Anime> anime, String archivoDestino) {
-        JSONArray jsonObject = JsonUtilAnime.listToJsonPrueba(anime);
+        JSONArray jsonObject = JsonUtilAnime.listToJson(anime);
 
         try (FileWriter file = new FileWriter(archivoDestino, false)) {
             file.write(jsonObject.toString(4));
             file.flush();
         } catch (IOException e) {
-            System.out.println("Error al guardar el archivo.");
-            e.printStackTrace();
+            GestorExcepciones.manejarIOException(e);
         }
     }
 
@@ -149,8 +148,7 @@ public class JsonUtilAnime extends JsonUtil {
                 listaDeAnimes.add(anime);
             }
         } catch (IOException e) {
-            System.out.println("Error al leer el archivo JSON: " + e.getMessage());
-            e.printStackTrace();
+            GestorExcepciones.manejarIOException(e);
         }
 
         return listaDeAnimes;

@@ -2,6 +2,7 @@ package manejo_json;
 
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
+import gestores.GestorExcepciones;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import usuario.Usuario;
@@ -130,6 +131,7 @@ public class JsonUtilUsuario extends JsonUtil {
         Collections.sort(listaUsuarios, Comparator.comparingInt(Usuario::getId));
 
         JsonUtilAnime jsonUtilAnime = new JsonUtilAnime(); // Crear instancia de JsonUtilAnime
+        JsonUtilManga jsonUtilManga = new JsonUtilManga(); // Crear instancia de JsonUtilManga
 
         // Convertir la lista ordenada en un JSONArray
         JSONArray usuariosJson = new JSONArray();
@@ -143,6 +145,9 @@ public class JsonUtilUsuario extends JsonUtil {
             // Convertir la lista de animes del usuario usando JsonUtilAnime.listToJsonUsuario
             JSONArray listaAnimeJson = jsonUtilAnime.listToJsonUsuario(usuario.getAnimes());
             usuarioJson.put("listaAnime", listaAnimeJson);
+
+            JSONArray listaMangaJson = jsonUtilManga.listToJsonUsuario(usuario.getMangas());
+            usuarioJson.put("listaManga", listaMangaJson);
 
             usuariosJson.put(usuarioJson); // Agrega el JSON del usuario al JSONArray
         }
@@ -180,20 +185,10 @@ public class JsonUtilUsuario extends JsonUtil {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error al cargar los usuarios desde el archivo: " + e.getMessage());
+            GestorExcepciones.manejarExcepcion(e);
         }
 
         return usuarios;
-    }
-
-    // Método auxiliar para escribir JSON a un archivo
-    public static void writeJsonToFile(String fileName, JSONObject jsonObject) {
-        try {
-            // Escribe el JSON en el archivo con formato (4 espacios de indentación)
-            Files.write(Paths.get(fileName), jsonObject.toString(4).getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println("Error al escribir en el archivo " + fileName + ": " + e.getMessage());
-        }
     }
 
     // Actualizar un usuario específico en el archivo

@@ -2,40 +2,18 @@ package api;
 
 import contenido.Manga;
 import manejo_json.JsonUtilManga;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import gestores.GestorExcepciones;
+import excepciones.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class GetManga implements IApis {
-
-        @Override
-        public  String getDataApi() {
-            try {
-                String apiUrl = "https://api.jikan.moe/v4/manga"; // URL de la API
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(apiUrl))
-                        .GET()
-                        .header("Accept", "application/json")
-                        .build();
-
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-                if (response.statusCode() == 200) {
-                    return ("Response: " + response.body());
-                } else {
-                    return ("GET request failed: " + response.statusCode());
-                }
-            } catch (Exception e) {
-                return e.getMessage();
-            }
-        }
 
     @Override
     public void obtenerYGuardarDataFiltrada(String archivoDestino) {
@@ -73,21 +51,44 @@ public class GetManga implements IApis {
                     // Guardar el manga en un archivo usando JsonUtilManga
                     JsonUtilManga.guardarListaMangaEnArchivo(lista_de_mangas, archivoDestino);
                 } else {
-                    System.out.println("No se encontró el campo 'data' en la respuesta de la API.");
+                    throw new RespuestaApiException("No se encontró el campo 'data' en la respuesta de la API.");
                 }
             } else {
-                System.out.println("La solicitud GET falló con el código de estado: " + response.statusCode());
+                throw new PeticionApiException("La solicitud GET falló con el código de estado: " + response.statusCode());
             }
+        } catch (PeticionApiException e) {
+            GestorExcepciones.manejarPeticionApiException(e);
+        } catch (RespuestaApiException e) {
+            GestorExcepciones.manejarRespuestaApiException(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
+    @Override
+    public String getDataApi() {
+        try {
+            String apiUrl = "https://api.jikan.moe/v4/manga"; // URL de la API
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .GET()
+                    .header("Accept", "application/json")
+                    .build();
 
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-
-
+            if (response.statusCode() == 200) {
+                return ("Response: " + response.body());
+            } else {
+                throw new PeticionApiException("La solicitud GET falló con el código de estado: " + response.statusCode());
+            }
+        } catch (PeticionApiException e) {
+            GestorExcepciones.manejarPeticionApiException(e);
+            return e.getMessage();
+        } catch (Exception e) {
+            GestorExcepciones.manejarExcepcion(e);
+            return e.getMessage();
+        }
+    }
 }
-
-
-

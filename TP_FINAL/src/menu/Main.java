@@ -1,5 +1,7 @@
 package menu;
 
+import api.GetAnime;
+import api.GetManga;
 import contenido.Anime;
 import contenido.EstadoVisto;
 import contenido.Manga;
@@ -43,9 +45,9 @@ public class Main {
 
 //        GetAnime getAnime = new GetAnime();
 //        getAnime.obtenerYGuardarDataFiltrada("pruebaAnime.json");
-//        JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
-//        jsonUtilAnime.mostrarAnimesConsola("pruebaAnime.json");
-//
+////        JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
+////        jsonUtilAnime.mostrarAnimesConsola("pruebaAnime.json");
+////
 //        GetManga getManga = new GetManga();
 //        getManga.obtenerYGuardarDataFiltrada("pruebaManga.json");
 //        JsonUtilManga jsonUtilManga = new JsonUtilManga();

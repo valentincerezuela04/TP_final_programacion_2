@@ -2,7 +2,6 @@ package contenido;
 
 public abstract class Contenido {
     private int id;
-    private String name;
     private String title;
     private String status;
     private double score;
@@ -12,28 +11,29 @@ public abstract class Contenido {
     private String synopsis;
     private EstadoVisto vistoONo;
 
-    public Contenido(int id, int members, String name, int popularity, int rank, double score, String status, String synopsis, String title, EstadoVisto vistoONo) {
+    public Contenido(int id, int members, int popularity, int rank, double score, String status, String synopsis, String title, EstadoVisto vistoONo) {
         this.id = id;
         this.members = members;
-        this.name = name;
         this.popularity = popularity;
         this.rank = rank;
         this.score = score;
         this.status = status;
         this.synopsis = synopsis;
         this.title = title;
-        this.vistoONo = vistoONo;
+        this.setVistoONo(vistoONo);
     }
+
+
     public Contenido (){
 
     }
 
-    public Contenido(int id, String title, double score, int popularity, EstadoVisto estadoVisto){
+    public Contenido(int id, String title, double score, int popularity, EstadoVisto vistoONo){
         this.id = id;
         this.title = title;
         this.score = score;
         this.popularity = popularity;
-        this.setVistoONo(estadoVisto);
+        this.setVistoONo(vistoONo);
     }
 
     public int getId() {
@@ -50,14 +50,6 @@ public abstract class Contenido {
 
     public void setMembers(int members) {
         this.members = members;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getPopularity() {
@@ -122,7 +114,6 @@ public abstract class Contenido {
     public String toString() {
         return "Contenido{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
                 ", title='" + title + '\'' +
                 ", status='" + status + '\'' +
                 ", score=" + score +
