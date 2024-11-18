@@ -19,11 +19,11 @@ public class GestorUsuarios {
         try {
             usuariosRegistrados = jsonUtilUsuario.cargarUsuariosDesdeArchivo();
         } catch (IOException e) {
-            System.out.println("Error al cargar los usuarios desde el archivo: " + e.getMessage());
+            GestorExcepciones.manejarIOException(e);
         } catch (ContrasenaInvalidaException e) {
-            System.out.println("Error de contraseña inválida: " + e.getMessage());
+            GestorExcepciones.manejarContrasenaInvalida(e);
         } catch (EmailInvalidoException e) {
-            System.out.println("Error de email inválido: " + e.getMessage());
+            GestorExcepciones.manejarEmailInvalido(e);
         }
     }
 
@@ -52,6 +52,18 @@ public class GestorUsuarios {
     }
 
     public Usuario iniciarSesion(String nombreUsuario, String contraseña) throws LoginException {
+        // Verificar si el nombre de usuario es admin01
+        if ("admin01".equals(nombreUsuario)) {
+            // Si el usuario es admin01, validamos solo la contraseña
+            if (!"admin01".equals(contraseña)) {
+                throw new LoginException("La contraseña de administrador es incorrecta.");
+            }
+
+            // Retornar un usuario administrador usando el constructor sin validaciones
+            return new Usuario("admin01", "admin01");
+        }
+
+        // Si no es admin01, verificamos el nombre de usuario en el archivo .json
         if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
             throw new LoginException("El nombre de usuario no puede estar vacío.");
         }
@@ -62,12 +74,15 @@ public class GestorUsuarios {
             throw new LoginException("No existe una cuenta con el nombre de usuario ingresado.");
         }
 
+        // Verificación de la contraseña ingresada contra la almacenada para usuarios comunes
         if (!ValidacionUsuario.verificarContraseña(usuario.getContraseña(), contraseña)) {
             throw new LoginException("La contraseña ingresada es incorrecta.");
         }
 
         return usuario;
     }
+
+
 
 
     public void eliminarUsuario(Usuario usuario) {

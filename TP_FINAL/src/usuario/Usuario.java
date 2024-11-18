@@ -46,6 +46,13 @@ public class Usuario {
         this.listaManga = new ArrayList<>();
     }
 
+    //Constructor para el admin
+    public Usuario(String nombre, String contraseña) {
+
+        this.nombre = nombre;
+        this.contraseña = contraseña;
+    }
+
     // Métodos de la clase Usuario
     public void setId(int id) {
         this.id = id;

@@ -1,5 +1,7 @@
 package admin;
 
+import gestores.GestorExcepciones;
+
 import java.util.Scanner;
 
 public class ValidacionDatos {
@@ -11,7 +13,7 @@ public class ValidacionDatos {
                 System.out.print(prompt);
                 return Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("Entrada inválida. Por favor, ingresa un número entero.");
+                GestorExcepciones.manejarNumberFormatException(e);
             }
         }
     }
@@ -22,7 +24,7 @@ public class ValidacionDatos {
                 System.out.print(prompt);
                 return Double.parseDouble(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("Entrada inválida. Por favor, ingresa un número decimal.");
+                GestorExcepciones.manejarNumberFormatException(e);
             }
         }
     }
@@ -38,7 +40,7 @@ public class ValidacionDatos {
                     System.out.println("La puntuación debe estar entre 1 y 10. Inténtalo nuevamente.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Entrada inválida. Por favor, ingresa un número válido.");
+                GestorExcepciones.manejarNumberFormatException(e);
             }
         }
     }

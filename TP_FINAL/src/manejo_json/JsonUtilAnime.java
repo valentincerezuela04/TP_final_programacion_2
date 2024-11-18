@@ -1,5 +1,6 @@
 package manejo_json;
 
+import api.GetAnime;
 import contenido.Anime;
 import contenido.EstadoVisto;
 import gestores.GestorExcepciones;
@@ -102,6 +103,16 @@ public class JsonUtilAnime extends JsonUtil {
 
         return new Anime(id, members, popularity, rank, score, status, synopsis, title, vistoONo, episodes);
     }
+
+    @Override
+    public void crearArchivoPorDefecto() {
+        // Crear una instancia de GetManga para obtener los mangas desde la API
+        GetAnime getAnime = new GetAnime();
+
+        // Obtener los mangas desde la API y guardarlos en el archivo "Manga.json"
+        getAnime.obtenerYGuardarDataFiltrada("Anime.json");
+    }
+
 
     // Método para guardar la lista de animes en un archivo JSON
     public static void guardarListaAnimeEnArchivo(List<Anime> anime, String archivoDestino) {

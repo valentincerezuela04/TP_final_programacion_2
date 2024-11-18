@@ -1,5 +1,6 @@
 package admin;
 
+import gestores.GestorExcepciones;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -19,13 +20,11 @@ public abstract class GestorAdmin {
 
     public abstract void crear();
 
-    public abstract  void actualizar();
+    public abstract void actualizar();
 
     public abstract JSONObject cargarDatos();
 
-
-
-
+    // Eliminar por ID con manejo de excepciones
     public void eliminar_por_id(int id) {
         try {
             // Leer el archivo JSON
@@ -34,8 +33,8 @@ public abstract class GestorAdmin {
                 JSONTokener tokener = new JSONTokener(reader);
                 contenidos = new JSONArray(tokener);
             } catch (IOException e) {
-                System.out.println("El archivo no existe o está vacío.");
-                return;
+                GestorExcepciones.manejarIOException(e);
+                return; // Retornamos al manejar la excepción
             }
 
             // Verificar si el objeto con el ID existe
@@ -55,16 +54,18 @@ public abstract class GestorAdmin {
                 try (FileWriter writer = new FileWriter(PATH)) {
                     writer.write(contenidos.toString(4)); // Formato bonito
                     System.out.println("El objeto con ID " + id + " ha sido eliminado exitosamente.");
+                } catch (IOException e) {
+                    GestorExcepciones.manejarIOException(e);
                 }
             } else {
                 System.out.println("No se encontró ningún objeto con ID " + id + ".");
             }
         } catch (Exception e) {
-            System.err.println("Error al eliminar el objeto: " + e.getMessage());
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
-
+    // Eliminar por título con manejo de excepciones
     public void eliminar_por_titulo(String titulo) {
         try {
             // Leer el archivo JSON
@@ -73,11 +74,11 @@ public abstract class GestorAdmin {
                 JSONTokener tokener = new JSONTokener(reader);
                 contenidos = new JSONArray(tokener);
             } catch (IOException e) {
-                System.out.println("El archivo no existe o está vacío.");
-                return;
+                GestorExcepciones.manejarIOException(e);
+                return; // Retornamos al manejar la excepción
             }
 
-            // Verificar si el objeto con el ID existe
+            // Verificar si el objeto con el título existe
             boolean encontrado = false;
             for (int i = 0; i < contenidos.length(); i++) {
                 JSONObject anime = contenidos.getJSONObject(i);
@@ -93,23 +94,26 @@ public abstract class GestorAdmin {
             if (encontrado) {
                 try (FileWriter writer = new FileWriter(PATH)) {
                     writer.write(contenidos.toString(4)); // Formato bonito
-                    System.out.println("El objeto con titulo " + titulo + " ha sido eliminado exitosamente.");
+                    System.out.println("El objeto con título " + titulo + " ha sido eliminado exitosamente.");
+                } catch (IOException e) {
+                    GestorExcepciones.manejarIOException(e);
                 }
             } else {
-                System.out.println("No se encontró ningún objeto con titulo " + titulo + ".");
+                System.out.println("No se encontró ningún objeto con título " + titulo + ".");
             }
         } catch (Exception e) {
-            System.err.println("Error al eliminar el objeto: " + e.getMessage());
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
-
-
-
-
+    // Obtener siguiente ID con manejo de excepciones
     public int obtenerSiguienteId() {
-        //lo casteamos por nuestro atributos de id es un int
-        return Math.abs((int) UUID.randomUUID().getMostSignificantBits());
+        try {
+            // El siguiente ID es un valor absoluto de un UUID
+            return Math.abs((int) UUID.randomUUID().getMostSignificantBits());
+        } catch (Exception e) {
+            GestorExcepciones.manejarExcepcion(e);
+            return -1; // Retornamos -1 en caso de error
+        }
     }
-
 }

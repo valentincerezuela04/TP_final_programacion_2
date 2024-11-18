@@ -96,6 +96,16 @@ public class JsonUtilUsuario extends JsonUtil {
         return usuario;
     }
 
+    @Override
+    public void crearArchivoPorDefecto() {
+        // Crear un objeto JSON con una clave "usuarios" que contenga un arreglo vacío
+        JSONObject defaultUsuarios = new JSONObject();
+        defaultUsuarios.put("usuarios", new JSONArray());
+
+        // Escribir el archivo "usuarios.json" con el contenido por defecto
+        JsonUtil.writeJsonToFile(ARCHIVO_USUARIOS, defaultUsuarios);
+    }
+
     public static void modificarUsuarioEnArchivo(Usuario usuarioModificado) throws IOException {
         // Leer el archivo JSON que contiene los usuarios
         JSONObject usuariosJson = readJsonFromFile(ARCHIVO_USUARIOS);
@@ -163,7 +173,6 @@ public class JsonUtilUsuario extends JsonUtil {
         // Verificar si el archivo existe
         File archivo = new File(ARCHIVO_USUARIOS);
         if (!archivo.exists()) {
-            System.err.println("El archivo de usuarios no existe.");
             return usuarios; // Retornar un HashMap vacío si no existe el archivo
         }
 

@@ -71,6 +71,11 @@ public class GestorExcepciones {
         manejarExcepcionGenerica(e, "Error en la respuesta API: ");
     }
 
+    // Método para manejar NumberFormatException
+    public static void manejarNumberFormatException(NumberFormatException e) {
+        manejarExcepcionGenerica(e, "Error de formato de número: ");
+    }
+
     // Método genérico para manejar las excepciones
     private static void manejarExcepcionGenerica(Exception e, String mensajePrefix) {
         String mensaje = mensajePrefix + e.getMessage();

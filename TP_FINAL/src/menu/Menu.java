@@ -8,6 +8,7 @@ import contenido.Anime;
 import contenido.Contenido;
 import contenido.Manga;
 import excepciones.*;
+import gestores.GestorArchivos;
 import gestores.GestorContenido;
 import gestores.GestorExcepciones;
 import gestores.GestorUsuarios;
@@ -19,8 +20,8 @@ public class Menu {
     private GestorUsuarios gestorUsuarios;
     private Scanner scanner;
     private GestorContenido gestorContenido;
-    private static final String ARCHIVO_ANIMES = "pruebaAnime.json";
-    private static final String ARCHIVO_MANGAS = "pruebaManga.json";
+    private static final String ARCHIVO_ANIMES = "Anime.json";
+    private static final String ARCHIVO_MANGAS = "Manga.json";
     private static final String tipoAnime = "anime";
     private static final String tipoManga = "manga";
 
@@ -28,6 +29,8 @@ public class Menu {
         this.gestorUsuarios = new GestorUsuarios();
         this.scanner = new Scanner(System.in);
         this.gestorContenido = new GestorContenido();
+
+        GestorArchivos.crearArchivosPorDefecto();
     }
 
     // Método para mostrar el menú principal
@@ -40,26 +43,34 @@ public class Menu {
             System.out.println("2. Crear una cuenta");
             System.out.println("3. Salir");
             System.out.print("Seleccione una opción: ");
-            opcion = scanner.nextInt();
-            scanner.nextLine(); // Limpiar el buffer
 
-            switch (opcion) {
-                case 1:
-                    menuIniciarSesion(); // El manejo de excepciones ya está en el método menuIniciarSesion
-                    break;
-                case 2:
-                    menuCrearCuenta();
-                    break;
-                case 3:
-                    System.out.println("Saliendo del sistema...");
-                    continuar = false;
-                    break;
-                default:
-                    System.out.println("Opción no válida. Intente nuevamente.");
+            // Verifica si hay un número entero disponible en el flujo
+            if (scanner.hasNextInt()) {
+                opcion = scanner.nextInt();
+                scanner.nextLine(); // Limpiar el buffer
+
+                switch (opcion) {
+                    case 1:
+                        menuIniciarSesion();
+                        break;
+                    case 2:
+                        menuCrearCuenta();
+                        break;
+                    case 3:
+                        System.out.println("Saliendo del sistema...");
+                        continuar = false;
+                        break;
+                    default:
+                        System.out.println("Opción no válida. Intente nuevamente.");
+                }
+            } else {
+                // Si no hay una opción válida, muestra un mensaje de error y consume el valor incorrecto
+                System.out.println("Entrada no válida. Intente nuevamente.");
+                scanner.nextLine(); // Limpiar el buffer de cualquier entrada no válida
             }
         } while (continuar);
-        System.exit(0);
     }
+
 
     // Método para iniciar sesión
     public void menuIniciarSesion() {
@@ -74,7 +85,16 @@ public class Menu {
 
             // Si todo está bien, iniciamos sesión
             System.out.println("Inicio de sesión exitoso. Bienvenido, " + usuario.getNombre() + "!");
-            menuUsuario(usuario);
+
+            // Verificar si el usuario es admin01 y su contraseña también es admin01
+            if ("admin01".equals(usuario.getNombre()) && "admin01".equals(contraseña)) {
+                // Si es admin01 y la contraseña también es admin01, mostramos el menú de administración
+                MenuAdmin menuAdmin = new MenuAdmin();
+                menuAdmin.mostrarMenuAdmin(); // Mostrar el menú de administración
+            } else {
+                // Si no es admin01 o la contraseña no es admin01, mostramos el menú de usuario regular
+                menuUsuario(usuario);
+            }
 
         } catch (LoginException e) {
             // Manejo de la excepción LoginException
@@ -84,6 +104,7 @@ public class Menu {
             GestorExcepciones.manejarExcepcion(e);
         }
     }
+
 
     // Método para crear una cuenta
     public void menuCrearCuenta() {
@@ -203,10 +224,11 @@ public class Menu {
             switch (opcion) {
                 case 1:
                     gestorContenido.mostrarContenidoUsuario(usuario, tipoContenido);
-                    // Llamar al método para ordenar la lista después de mostrarla
-                    if (tipoContenido.equalsIgnoreCase(tipoAnime)) {
+
+                    // Comprobar si la lista está vacía antes de mostrar el menú de ordenar
+                    if (tipoContenido.equalsIgnoreCase(tipoAnime) && !usuario.getAnimes().isEmpty()) {
                         menuOrdenarListaPersonal(usuario, tipoAnime, Anime.class);
-                    } else if (tipoContenido.equalsIgnoreCase(tipoManga)) {
+                    } else if (tipoContenido.equalsIgnoreCase(tipoManga) && !usuario.getMangas().isEmpty()) {
                         menuOrdenarListaPersonal(usuario, tipoManga, Manga.class);
                     }
                     break;
@@ -243,6 +265,7 @@ public class Menu {
             }
         } while (continuar);
     }
+
 
     public <T extends Contenido> void menuOrdenarListaPersonal(Usuario usuario, String tipoContenido, Class<T> tipoClase) {
         int opcion;

@@ -1,5 +1,6 @@
 package manejo_json;
 
+import api.GetManga;
 import contenido.Anime;
 import contenido.Manga;
 import contenido.EstadoVisto;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JsonUtilManga extends JsonUtil {
+
 
     @Override
     public JSONObject objectToJson(Object obj) {
@@ -71,6 +73,16 @@ public class JsonUtilManga extends JsonUtil {
         // Crear y devolver el objeto Manga con los datos extraídos
         return new Manga(id, members, popularity, rank, score, status, synopsis, title, vistoONo, chapters, volumes);
     }
+
+    @Override
+    public void crearArchivoPorDefecto() {
+        // Crear una instancia de GetManga para obtener los mangas desde la API
+        GetManga getManga = new GetManga();
+
+        // Obtener los mangas desde la API y guardarlos en el archivo "Manga.json"
+        getManga.obtenerYGuardarDataFiltrada("Manga.json");
+    }
+
 
     // para guardarListaAnimeEnArchivo(que se utiliza en la clase de api del manga)
     public static JSONArray listToJson(List<Manga> mangaList) {

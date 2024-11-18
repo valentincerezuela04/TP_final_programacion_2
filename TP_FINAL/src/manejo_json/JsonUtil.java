@@ -33,21 +33,12 @@ public abstract class JsonUtil {
         }
     }
 
-    // Método para leer un JSONArray de un archivo
-    public static JSONArray readJsonArrayFromFile(String fileName) {
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(fileName)));
-            return new JSONArray(content);
-        } catch (IOException e) {
-            GestorExcepciones.manejarIOException(e);
-            return null;
-        }
-    }
-
     // Método abstracto para convertir un objeto en un JSONObject (debe ser implementado en subclases)
     public abstract JSONObject objectToJson(Object obj);
 
     // Método abstracto para convertir un JSONObject en un objeto (debe ser implementado en subclases)
     public abstract Object jsonToObject(JSONObject jsonObject) throws ContrasenaInvalidaException, EmailInvalidoException;
 
+    // Método abstracto para crear un archivo por defecto (debe ser implementado en subclases)
+    public abstract void crearArchivoPorDefecto();
 }

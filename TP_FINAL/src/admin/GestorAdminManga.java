@@ -1,6 +1,7 @@
 package admin;
 
 import contenido.EstadoVisto;
+import gestores.GestorExcepciones;
 import manejo_json.JsonUtilManga;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,7 +35,7 @@ public class GestorAdminManga extends GestorAdmin {
                 JSONTokener tokener = new JSONTokener(reader);
                 contenidos = new JSONArray(tokener); // Leer contenido si es válido
             } catch (IOException e) {
-                System.out.println("El archivo no existe o está vacío. Creando uno nuevo...");
+                GestorExcepciones.manejarIOException(e);
                 contenidos = new JSONArray(); // Inicializar un JSONArray vacío
             }
 
@@ -58,7 +59,7 @@ public class GestorAdminManga extends GestorAdmin {
                 System.out.println("El manga ya existe en la base de datos.");
             }
         } catch (Exception e) {
-            System.err.println("Error al crear el manga: " + e.getMessage());
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
@@ -81,7 +82,6 @@ public class GestorAdminManga extends GestorAdmin {
         nuevoManga.put("members", members);
         nuevoManga.put("popularity", popularidad);
         nuevoManga.put("rank", rank);
-        nuevoManga.put("vistoONo", EstadoVisto.NO_VISTO);
         nuevoManga.put("id", obtenerSiguienteId());
         nuevoManga.put("synopsis", synopsis);
         nuevoManga.put("title", titulo);
@@ -138,9 +138,9 @@ public class GestorAdminManga extends GestorAdmin {
             }
 
         } catch (IOException e) {
-            System.err.println("Error al leer o escribir el archivo JSON: " + e.getMessage());
+            GestorExcepciones.manejarIOException(e);
         } catch (Exception e) {
-            System.err.println("Error inesperado: " + e.getMessage());
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 

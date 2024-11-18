@@ -294,7 +294,7 @@ public class GestorContenido<T extends Contenido> {
         }
 
         // Usamos el método cargarContenidoDesdeArchivo para cargar los contenidos
-        List<T> contenidos = cargarContenidoDesdeArchivo("prueba" + tipoContenidoStr + ".json", tipoContenidoStr);
+        List<T> contenidos = cargarContenidoDesdeArchivo( tipoContenidoStr + ".json", tipoContenidoStr);
 
         // Mostrar los contenidos disponibles
         if (contenidos.isEmpty()) {
