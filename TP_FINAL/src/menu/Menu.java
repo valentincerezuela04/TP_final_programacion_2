@@ -38,6 +38,7 @@ public class Menu {
         int opcion;
         boolean continuar = true;
         do {
+
             System.out.println("---- Menú Principal ----");
             System.out.println("1. Iniciar sesión");
             System.out.println("2. Crear una cuenta");

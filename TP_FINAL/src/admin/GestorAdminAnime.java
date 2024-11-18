@@ -65,7 +65,6 @@ public class GestorAdminAnime extends  GestorAdmin{
     public JSONObject cargarDatos() {
 
         String titulo = ValidacionDatos.obtenerString("Ingrese el título del anime: ");
-        int anio = ValidacionDatos.obtenerEnteros("Ingrese el año de estreno: ");
         int popularidad = ValidacionDatos.obtenerEnteros("Ingrese la popularidad: ");
         int rank = ValidacionDatos.obtenerEnteros("Ingrese el ranking: ");
         double score = ValidacionDatos.obtenerPuntuacion("Ingrese la puntuación (score): ");
@@ -78,7 +77,6 @@ public class GestorAdminAnime extends  GestorAdmin{
         // Construir el objeto JSON en el orden especificado
         JSONObject nuevoAnime = new JSONObject();
         nuevoAnime.put("score", score);
-        nuevoAnime.put("anio", anio);
         nuevoAnime.put("members", members);
         nuevoAnime.put("popularity", popularidad);
         nuevoAnime.put("rank", rank);
