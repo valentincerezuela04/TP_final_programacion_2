@@ -24,35 +24,31 @@ public abstract class GestorAdmin {
 
     public abstract JSONObject cargarDatos();
 
-    // Eliminar por ID con manejo de excepciones
+    // Método para eliminar un contenido por ID con manejo de excepciones
     public void eliminar_por_id(int id) {
         try {
-            // Leer el archivo JSON
             JSONArray contenidos;
             try (FileReader reader = new FileReader(PATH)) {
                 JSONTokener tokener = new JSONTokener(reader);
                 contenidos = new JSONArray(tokener);
             } catch (IOException e) {
                 GestorExcepciones.manejarIOException(e);
-                return; // Retornamos al manejar la excepción
+                return;
             }
 
-            // Verificar si el objeto con el ID existe
             boolean encontrado = false;
             for (int i = 0; i < contenidos.length(); i++) {
                 JSONObject anime = contenidos.getJSONObject(i);
                 if (anime.getInt("id") == id) {
-                    // Si se encuentra, eliminar el objeto
                     contenidos.remove(i);
                     encontrado = true;
                     break;
                 }
             }
 
-            // Guardar el archivo actualizado si el objeto fue encontrado
             if (encontrado) {
                 try (FileWriter writer = new FileWriter(PATH)) {
-                    writer.write(contenidos.toString(4)); // Formato bonito
+                    writer.write(contenidos.toString(4));
                     System.out.println("El objeto con ID " + id + " ha sido eliminado exitosamente.");
                 } catch (IOException e) {
                     GestorExcepciones.manejarIOException(e);
@@ -65,35 +61,31 @@ public abstract class GestorAdmin {
         }
     }
 
-    // Eliminar por título con manejo de excepciones
+    // Método para eliminar un contenido por título con manejo de excepciones
     public void eliminar_por_titulo(String titulo) {
         try {
-            // Leer el archivo JSON
             JSONArray contenidos;
             try (FileReader reader = new FileReader(PATH)) {
                 JSONTokener tokener = new JSONTokener(reader);
                 contenidos = new JSONArray(tokener);
             } catch (IOException e) {
                 GestorExcepciones.manejarIOException(e);
-                return; // Retornamos al manejar la excepción
+                return;
             }
 
-            // Verificar si el objeto con el título existe
             boolean encontrado = false;
             for (int i = 0; i < contenidos.length(); i++) {
                 JSONObject anime = contenidos.getJSONObject(i);
                 if (Objects.equals(anime.getString("title"), titulo)) {
-                    // Si se encuentra, eliminar el objeto
                     contenidos.remove(i);
                     encontrado = true;
                     break;
                 }
             }
 
-            // Guardar el archivo actualizado si el objeto fue encontrado
             if (encontrado) {
                 try (FileWriter writer = new FileWriter(PATH)) {
-                    writer.write(contenidos.toString(4)); // Formato bonito
+                    writer.write(contenidos.toString(4));
                     System.out.println("El objeto con título " + titulo + " ha sido eliminado exitosamente.");
                 } catch (IOException e) {
                     GestorExcepciones.manejarIOException(e);
@@ -106,14 +98,13 @@ public abstract class GestorAdmin {
         }
     }
 
-    // Obtener siguiente ID con manejo de excepciones
+    // Método para obtener el siguiente ID con manejo de excepciones
     public int obtenerSiguienteId() {
         try {
-            // El siguiente ID es un valor absoluto de un UUID
             return Math.abs((int) UUID.randomUUID().getMostSignificantBits());
         } catch (Exception e) {
             GestorExcepciones.manejarExcepcion(e);
-            return -1; // Retornamos -1 en caso de error
+            return -1;
         }
     }
 }

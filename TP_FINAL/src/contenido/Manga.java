@@ -39,23 +39,20 @@ public class Manga extends Contenido {
 
     @Override
     public boolean equals(Object obj) {
-        // Verificamos si los objetos son exactamente iguales
         if (this == obj) return true;
 
-        // Verificamos si el objeto es nulo o pertenece a una clase diferente
         if (obj == null || getClass() != obj.getClass()) return false;
 
-        // Si son del mismo tipo, comparamos por el id (suponiendo que el id es único)
         Manga manga = (Manga) obj;
         return getId() == manga.getId();
     }
 
     @Override
     public int hashCode() {
-        // Usamos el id para generar el código hash
         return Objects.hash(getId());
     }
 
+    // Método para imprimir si el manga ha sido visto o no, según el estado de 'vistoONo'
     @Override
     public void visto_o_no() {
         if (getVistoONo() == EstadoVisto.VISTO) {

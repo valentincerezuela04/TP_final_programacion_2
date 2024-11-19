@@ -7,9 +7,9 @@ import contenido.Manga;
 import excepciones.ContenidoDuplicadoException;
 import excepciones.ContenidoNoEncontradoException;
 import excepciones.EstadoRepetidoException;
-import manejo_json.JsonUtilAnime;
-import manejo_json.JsonUtilManga;
-import manejo_json.JsonUtilUsuario;
+import manejoJson.JsonUtilAnime;
+import manejoJson.JsonUtilManga;
+import manejoJson.JsonUtilUsuario;
 import usuario.Usuario;
 
 import java.io.IOException;
@@ -39,6 +39,7 @@ public class GestorContenido<T extends Contenido> {
         throw new ContenidoNoEncontradoException("Contenido con ID " + id + " no encontrado.");
     }
 
+    // Método para buscar un contenido por su nombre en el archivo
     public <T extends Contenido> T buscarContenidoPorNombre(String archivo, String title, Class<T> tipoContenido) throws ContenidoNoEncontradoException {
         List<T> listaContenido = cargarContenidoDesdeArchivo(archivo, tipoContenido);
 
@@ -53,15 +54,13 @@ public class GestorContenido<T extends Contenido> {
     // Método para cargar contenido desde archivo (genérico para Anime o Manga)
     private <T extends Contenido> List<T> cargarContenidoDesdeArchivo(String archivo, Class<T> tipoContenido) {
         if (tipoContenido == Anime.class) {
-            // Cargar Animes
             List<Anime> animes = jsonUtilAnime.cargarAnimesDesdeArchivo(archivo);
-            return (List<T>) animes; // Convertimos la lista de Anime a List<T>
+            return (List<T>) animes;
         } else if (tipoContenido == Manga.class) {
-            // Cargar Mangas
             List<Manga> mangas = jsonUtilManga.cargarMangasDesdeArchivo(archivo);
-            return (List<T>) mangas; // Convertimos la lista de Manga a List<T>
+            return (List<T>) mangas;
         }
-        return new ArrayList<>(); // Retornar una lista vacía si no es un tipo válido
+        return new ArrayList<>();
     }
 
     // Método para ordenar contenidos por un criterio específico
@@ -81,6 +80,7 @@ public class GestorContenido<T extends Contenido> {
         return listaContenido;
     }
 
+    // Método para ordenar la lista de contenidos de un usuario según un criterio específico
     public <T extends Contenido> List<T> ordenarListaPersonal(Usuario usuario, String tipoContenido, String criterio) {
         List<T> listaPersonal = null;
 
@@ -92,7 +92,7 @@ public class GestorContenido<T extends Contenido> {
 
         if (listaPersonal == null || listaPersonal.isEmpty()) {
             System.out.println("Tu lista está vacía.");
-            return new ArrayList<>();  // Devolver una lista vacía
+            return new ArrayList<>();
         }
 
         switch (criterio.toLowerCase()) {
@@ -110,18 +110,18 @@ public class GestorContenido<T extends Contenido> {
                 break;
             default:
                 System.out.println("Criterio de ordenamiento no válido.");
-                return new ArrayList<>();  // Devolver una lista vacía en caso de criterio no válido
+                return new ArrayList<>();
         }
 
-        return listaPersonal;  // Devolver la lista ordenada
+        return listaPersonal;
     }
 
 
     // Método para agregar contenido (Anime o Manga) a la lista del usuario
     public <T> void agregarContenido(Usuario usuario, T contenido) throws IOException, ContenidoDuplicadoException {
-        // Verificar si el contenido ya está en la lista de animes o mangas
+
         if (contenido instanceof Anime) {
-            // Preguntar por el estado del anime antes de agregarlo
+
             System.out.println("Seleccione el estado para el anime:");
             System.out.println("1. VISTO");
             System.out.println("2. NO_VISTO");
@@ -129,17 +129,15 @@ public class GestorContenido<T extends Contenido> {
             int opcion = new Scanner(System.in).nextInt();
             EstadoVisto estado = (opcion == 1) ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO;
 
-            // Verificamos si el anime ya está en la lista de animes del usuario
             if (usuario.getAnimes().contains(contenido)) {
                 throw new ContenidoDuplicadoException("Este anime ya está en tu lista.");
             }
 
-            // Asignar el estado y agregar el anime a la lista
             ((Anime) contenido).setVistoONo(estado);
             usuario.getAnimes().add((Anime) contenido);
 
         } else if (contenido instanceof Manga) {
-            // Preguntar por el estado del manga antes de agregarlo
+
             System.out.println("Seleccione el estado para el manga:");
             System.out.println("1. VISTO");
             System.out.println("2. NO_VISTO");
@@ -147,17 +145,14 @@ public class GestorContenido<T extends Contenido> {
             int opcion = new Scanner(System.in).nextInt();
             EstadoVisto estado = (opcion == 1) ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO;
 
-            // Verificamos si el manga ya está en la lista de mangas del usuario
             if (usuario.getMangas().contains(contenido)) {
                 throw new ContenidoDuplicadoException("Este manga ya está en tu lista.");
             }
 
-            // Asignar el estado y agregar el manga a la lista
             ((Manga) contenido).setVistoONo(estado);
             usuario.getMangas().add((Manga) contenido);
         }
 
-        // Guardar los cambios en el archivo
         JsonUtilUsuario.modificarUsuarioEnArchivo(usuario);
         System.out.println("Contenido agregado exitosamente a tu lista.");
     }
@@ -167,16 +162,16 @@ public class GestorContenido<T extends Contenido> {
     public void eliminarContenido(Usuario usuario, int id, Class<T> tipoContenido) throws ContenidoNoEncontradoException, IOException {
         T contenidoAEliminar = null;
 
-        // Eliminar contenido de la lista correspondiente (animes o mangas)
+
         if (tipoContenido == Anime.class) {
-            for (Anime contenido : usuario.getAnimes()) {  // Cambié el tipo explícito a Anime
+            for (Anime contenido : usuario.getAnimes()) {
                 if (contenido.getId() == id) {
                     contenidoAEliminar = (T) contenido;
                     break;
                 }
             }
         } else if (tipoContenido == Manga.class) {
-            for (Manga contenido : usuario.getMangas()) {  // Cambié el tipo explícito a Manga
+            for (Manga contenido : usuario.getMangas()) {
                 if (contenido.getId() == id) {
                     contenidoAEliminar = (T) contenido;
                     break;
@@ -185,14 +180,12 @@ public class GestorContenido<T extends Contenido> {
         }
 
         if (contenidoAEliminar != null) {
-            // Eliminar contenido de la lista correspondiente
             if (tipoContenido == Anime.class) {
                 usuario.getAnimes().remove(contenidoAEliminar);
             } else if (tipoContenido == Manga.class) {
                 usuario.getMangas().remove(contenidoAEliminar);
             }
 
-            // Guardar los cambios en el archivo
             JsonUtilUsuario.modificarUsuarioEnArchivo(usuario);
             System.out.println("Contenido eliminado exitosamente.");
         } else {
@@ -200,7 +193,8 @@ public class GestorContenido<T extends Contenido> {
         }
     }
 
-    public <T extends Contenido> void asignarEstadoContenido(T contenido, Usuario usuario) {
+    // Método para asignar un estado (visto o no visto) a un contenido específico para un usuario
+    public <T extends Contenido> void asignarEstadoContenido(T contenido, Usuario usuario) throws EstadoRepetidoException {
         System.out.println("Seleccione el estado para el contenido:");
         System.out.println("1. VISTO");
         System.out.println("2. NO_VISTO");
@@ -209,65 +203,50 @@ public class GestorContenido<T extends Contenido> {
 
         boolean contenidoEncontrado = false;
 
-        try {
-            // Determinar a qué lista pertenece el contenido (Anime o Manga)
-            if (contenido instanceof Anime) {
-                // Verificar en la lista de animes del usuario
-                for (Anime animeEnLista : usuario.getAnimes()) {
-                    if (animeEnLista.getId() == contenido.getId()) {
-                        contenidoEncontrado = true;
+        if (contenido instanceof Anime) {
+            for (Anime animeEnLista : usuario.getAnimes()) {
+                if (animeEnLista.getId() == contenido.getId()) {
+                    contenidoEncontrado = true;
 
-                        // Verificar si el estado ya coincide
-                        if ((opcion == 1 && animeEnLista.getVistoONo() == EstadoVisto.VISTO) ||
-                                (opcion == 2 && animeEnLista.getVistoONo() == EstadoVisto.NO_VISTO)) {
-                            throw new EstadoRepetidoException("El anime ya tiene el estado seleccionado en tu lista personal.");
-                        }
-
-                        // Actualizar el estado del anime existente
-                        animeEnLista.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
-                        break;
+                    if ((opcion == 1 && animeEnLista.getVistoONo() == EstadoVisto.VISTO) ||
+                            (opcion == 2 && animeEnLista.getVistoONo() == EstadoVisto.NO_VISTO)) {
+                        throw new EstadoRepetidoException("El anime ya tiene el estado seleccionado en tu lista personal.");
                     }
+
+                    animeEnLista.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
+                    break;
                 }
-
-                // Si no está en la lista, agregarlo
-                if (!contenidoEncontrado) {
-                    contenido.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
-                    usuario.getAnimes().add((Anime) contenido);
-                }
-
-            } else if (contenido instanceof Manga) {
-                // Verificar en la lista de mangas del usuario
-                for (Manga mangaEnLista : usuario.getMangas()) {
-                    if (mangaEnLista.getId() == contenido.getId()) {
-                        contenidoEncontrado = true;
-
-                        // Verificar si el estado ya coincide
-                        if ((opcion == 1 && mangaEnLista.getVistoONo() == EstadoVisto.VISTO) ||
-                                (opcion == 2 && mangaEnLista.getVistoONo() == EstadoVisto.NO_VISTO)) {
-                            throw new EstadoRepetidoException("El manga ya tiene el estado seleccionado en tu lista personal.");
-                        }
-
-                        // Actualizar el estado del manga existente
-                        mangaEnLista.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
-                        break;
-                    }
-                }
-
-                // Si no está en la lista, agregarlo
-                if (!contenidoEncontrado) {
-                    contenido.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
-                    usuario.getMangas().add((Manga) contenido);
-                }
-            } else {
-                throw new IllegalArgumentException("Tipo de contenido no soportado.");
             }
 
-        } catch (EstadoRepetidoException e) {
-            GestorExcepciones.manejarEstadoRepetidoException(e);
+            if (!contenidoEncontrado) {
+                contenido.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
+                usuario.getAnimes().add((Anime) contenido);
+            }
+        } else if (contenido instanceof Manga) {
+            for (Manga mangaEnLista : usuario.getMangas()) {
+                if (mangaEnLista.getId() == contenido.getId()) {
+                    contenidoEncontrado = true;
+
+                    if ((opcion == 1 && mangaEnLista.getVistoONo() == EstadoVisto.VISTO) ||
+                            (opcion == 2 && mangaEnLista.getVistoONo() == EstadoVisto.NO_VISTO)) {
+                        throw new EstadoRepetidoException("El manga ya tiene el estado seleccionado en tu lista personal.");
+                    }
+
+                    mangaEnLista.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
+                    break;
+                }
+            }
+
+            if (!contenidoEncontrado) {
+                contenido.setVistoONo(opcion == 1 ? EstadoVisto.VISTO : EstadoVisto.NO_VISTO);
+                usuario.getMangas().add((Manga) contenido);
+            }
+        } else {
+            throw new IllegalArgumentException("Tipo de contenido no soportado.");
         }
     }
 
-
+    // Método para cargar contenido desde un archivo y devolver una lista de contenidos del tipo especificado
     public static <T> List<T> cargarContenidoDesdeArchivo(String archivo, String tipoContenido) {
         List<T> contenidos = new ArrayList<>();
 
@@ -282,27 +261,22 @@ public class GestorContenido<T extends Contenido> {
         return contenidos;
     }
 
-
     // Método para mostrar los contenidos disponibles (Anime o Manga)
     public void mostrarContenidoDisponible(Class<T> tipoContenido) {
-        // Dependiendo del tipo de contenido, seleccionamos el tipo adecuado ("anime" o "manga")
         String tipoContenidoStr = "";
         if (tipoContenido == Anime.class) {
-            tipoContenidoStr = "anime"; // Tipo de contenido: anime
+            tipoContenidoStr = "anime";
         } else if (tipoContenido == Manga.class) {
-            tipoContenidoStr = "manga"; // Tipo de contenido: manga
+            tipoContenidoStr = "manga";
         }
 
-        // Usamos el método cargarContenidoDesdeArchivo para cargar los contenidos
         List<T> contenidos = cargarContenidoDesdeArchivo( tipoContenidoStr + ".json", tipoContenidoStr);
 
-        // Mostrar los contenidos disponibles
         if (contenidos.isEmpty()) {
             System.out.println("No hay contenidos disponibles.");
         } else {
             System.out.println("---- Contenidos Disponibles ----");
             for (T contenido : contenidos) {
-                // Verificamos si el contenido es un anime o un manga
                 if (contenido instanceof Anime) {
                     Anime anime = (Anime) contenido;
                     System.out.println("ID: " + anime.getId());
@@ -327,7 +301,6 @@ public class GestorContenido<T extends Contenido> {
 
     // Método para mostrar los contenidos del usuario (Anime o Manga)
     public void mostrarContenidoUsuario(Usuario usuario, String tipoContenido) {
-        // Mostrar contenidos según el tipo (Anime o Manga)
         if (tipoContenido.equalsIgnoreCase("Anime")) {
             if (usuario.getAnimes().isEmpty()) {
                 System.out.println("Tu lista de animes está vacía.");
@@ -362,6 +335,7 @@ public class GestorContenido<T extends Contenido> {
         }
     }
 
+    // Método para mostrar contenido ordenado en la consola
     public <T extends Contenido> void mostrarContenidoOrdenado(List<T> contenidoOrdenado) {
         if (contenidoOrdenado == null || contenidoOrdenado.isEmpty()) {
             System.out.println("No hay contenido disponible para mostrar.");
@@ -391,6 +365,5 @@ public class GestorContenido<T extends Contenido> {
             }
         }
     }
-
 
 }

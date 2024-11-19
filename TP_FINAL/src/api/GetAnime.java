@@ -1,7 +1,7 @@
 package api;
 
 import contenido.*;
-import manejo_json.*;
+import manejoJson.*;
 import gestores.GestorExcepciones;
 import excepciones.*;
 import java.net.URI;
@@ -15,10 +15,11 @@ import org.json.JSONObject;
 
 public class GetAnime implements IApis {
 
+    // Método para obtener datos de la API
     @Override
     public String getDataApi() {
         try {
-            String apiUrl = "https://api.jikan.moe/v4/anime"; // URL de la API
+            String apiUrl = "https://api.jikan.moe/v4/anime";
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
@@ -42,9 +43,10 @@ public class GetAnime implements IApis {
         }
     }
 
+    // Método para obtener y guardar los datos filtrados de la API en un archivo
     @Override
     public void obtenerYGuardarDataFiltrada(String archivoDestino) {
-        String apiUrl = "https://api.jikan.moe/v4/anime";  // URL de la API
+        String apiUrl = "https://api.jikan.moe/v4/anime";
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(apiUrl))
@@ -53,17 +55,16 @@ public class GetAnime implements IApis {
                 .build();
 
         try {
-            // Enviar la solicitud HTTP y obtener la respuesta
+
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                String jsonResponse = response.body();  // Obtener el cuerpo de la respuesta como un String
+                String jsonResponse = response.body();
 
-                // Procesar el JSON y extraer datos relevantes
                 JSONObject jsonObject = new JSONObject(jsonResponse);
-                // Aseguramos que el objeto contiene el campo "data"
+
                 if (jsonObject.has("data")) {
-                    JSONArray animesArray = jsonObject.getJSONArray("data");  // Acá están los animes
+                    JSONArray animesArray = jsonObject.getJSONArray("data");
 
                     List<Anime> lista_de_animes = new ArrayList<>();
                     JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
@@ -75,7 +76,6 @@ public class GetAnime implements IApis {
                         lista_de_animes.add(anime);
                     }
 
-                    // Guardar el anime en un archivo usando JsonUtilAnime
                     JsonUtilAnime.guardarListaAnimeEnArchivo(lista_de_animes, archivoDestino);
                 } else {
                     throw new RespuestaApiException("No se encontró el campo 'data' en la respuesta de la API.");

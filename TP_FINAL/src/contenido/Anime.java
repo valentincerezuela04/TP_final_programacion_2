@@ -41,6 +41,8 @@ public class Anime extends Contenido {
         return super.toString() + ", Episodios: " + episodes;
     }
 
+
+    // Método para imprimir si el anime ha sido visto o no, según el estado de 'vistoONo'
     @Override
     public void visto_o_no() {
         if (getVistoONo() == EstadoVisto.VISTO) {
@@ -52,20 +54,17 @@ public class Anime extends Contenido {
 
     @Override
     public boolean equals(Object obj) {
-        // Verificamos si los objetos son exactamente iguales
+
         if (this == obj) return true;
 
-        // Verificamos si el objeto es nulo o pertenece a una clase diferente
         if (obj == null || getClass() != obj.getClass()) return false;
 
-        // Si son del mismo tipo, comparamos por el id (suponiendo que el id es único)
         Anime anime = (Anime) obj;
         return getId() == anime.getId();
     }
 
     @Override
     public int hashCode() {
-        // Usamos el id para generar el código hash
         return Objects.hash(getId());
     }
 

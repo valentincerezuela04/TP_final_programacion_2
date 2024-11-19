@@ -23,19 +23,16 @@ public class Usuario {
     public Usuario() {
     }
 
-    // Constructor con parámetros
     public Usuario(String nombre, String contraseña, String email) throws ContrasenaInvalidaException, EmailInvalidoException {
-        this.id = contadorId++;  // Usamos el método para asignar el ID
+        this.id = contadorId++;
         this.nombre = nombre;
 
-        // Validar la contraseña (ya no se encripta)
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = contraseña;  // Se guarda tal cual se ingresa
+            this.contraseña = contraseña;
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida. Asegúrate de que tenga al menos 8 caracteres, una mayúscula, un número, y no contenga espacios ni caracteres especiales (excepto el punto).");
         }
 
-        // Validar el email
         if (ValidacionUsuario.esEmailValido(email)) {
             this.email = email;
         } else {
@@ -46,26 +43,25 @@ public class Usuario {
         this.listaManga = new ArrayList<>();
     }
 
-    //Constructor para el admin
     public Usuario(String nombre, String contraseña) {
-
         this.nombre = nombre;
         this.contraseña = contraseña;
     }
 
-    // Métodos de la clase Usuario
     public void setId(int id) {
         this.id = id;
     }
 
+    // Método para establecer la contraseña, validando si es correcta
     public void setContraseña(String contraseña) throws ContrasenaInvalidaException {
         if (ValidacionUsuario.esContraseñaValida(contraseña)) {
-            this.contraseña = contraseña;  // Se guarda tal cual la nueva contraseña
+            this.contraseña = contraseña;
         } else {
             throw new ContrasenaInvalidaException("Contraseña no válida.");
         }
     }
 
+    // Método para establecer el email, validando su formato
     public void setEmail(String email) throws EmailInvalidoException {
         if (ValidacionUsuario.esEmailValido(email)) {
             this.email = email;
@@ -94,11 +90,11 @@ public class Usuario {
         return email;
     }
 
+    // Método para cambiar la contraseña del usuario, validando la contraseña anterior
     public void cambiarContraseña(String contraseñaAntigua, String nuevaContraseña) throws ContrasenaInvalidaException {
-        // Verificar que la contraseña antigua coincida
         if (this.contraseña.equals(contraseñaAntigua)) {
             if (ValidacionUsuario.esContraseñaValida(nuevaContraseña)) {
-                this.contraseña = nuevaContraseña;  // Se guarda tal cual la nueva contraseña
+                this.contraseña = nuevaContraseña;
             } else {
                 throw new ContrasenaInvalidaException("Nueva contraseña no válida.");
             }
@@ -107,25 +103,24 @@ public class Usuario {
         }
     }
 
+    // Método para cambiar el email, validando la contraseña actual y el nuevo email
     public void cambiarEmail(String contraseñaActual, String nuevoEmail) throws ContrasenaInvalidaException, EmailInvalidoException {
-        // Verificar que la contraseña ingresada coincida con la actual
         if (this.contraseña.equals(contraseñaActual)) {
-            // Validar el nuevo email
+
             if (ValidacionUsuario.esEmailValido(nuevoEmail)) {
-                this.email = nuevoEmail;  // Actualizar el email
+                this.email = nuevoEmail;
             }
         } else {
             throw new ContrasenaInvalidaException("Contraseña incorrecta. No se pudo cambiar el email.");
         }
     }
 
+    // Método para cambiar el nombre de usuario, validando la contraseña y actualizando la base de datos
     public void cambiarNombreUsuario(String contraseñaActual, String nuevoNombre, GestorUsuarios gestorUsuarios) throws ContrasenaInvalidaException, IOException {
-        // Verificar que la contraseña ingresada coincida con la actual
         if (this.contraseña.equals(contraseñaActual)) {
             String nombreAnterior = this.nombre;
-            this.nombre = nuevoNombre;  // Actualizar el nombre de usuario
+            this.nombre = nuevoNombre;
 
-            // Actualizar el gestor de usuarios
             gestorUsuarios.actualizarNombreUsuario(nombreAnterior, nuevoNombre);
 
             System.out.println("Nombre de usuario actualizado correctamente.");
@@ -134,7 +129,6 @@ public class Usuario {
         }
     }
 
-    // Getter y setter para las listas de anime y manga
     public List<Anime> getAnimes() {
         return listaAnime;
     }

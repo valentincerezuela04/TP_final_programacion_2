@@ -17,10 +17,12 @@ public class ValidacionUsuario {
 
     private static final String REGLA_EMAIL = "^[\\w-\\.]+@[\\w-]+\\.[a-z]{2,}$";
 
+    // Método para verificar si la contraseña guardada coincide con la ingresada
     public static boolean verificarContraseña(String contraseñaGuardada, String contraseñaIngresada) {
         return contraseñaGuardada.equals(contraseñaIngresada);
     }
 
+    // Método para validar si el formato de un email es correcto
     public static boolean esEmailValido(String email) throws EmailInvalidoException {
         if (email == null || !email.matches(REGLA_EMAIL)) {
             throw new EmailInvalidoException("El email no es válido.");
@@ -28,6 +30,7 @@ public class ValidacionUsuario {
         return true;
     }
 
+    // Método para validar si la contraseña cumple con los requisitos de seguridad establecidos
     public static boolean esContraseñaValida(String contraseña) throws ContrasenaInvalidaException {
         if (!contraseña.matches(REGLA_CONTRASENA)) {
             throw new ContrasenaInvalidaException(

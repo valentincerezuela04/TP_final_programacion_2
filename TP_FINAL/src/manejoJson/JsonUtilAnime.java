@@ -1,4 +1,4 @@
-package manejo_json;
+package manejoJson;
 
 import api.GetAnime;
 import contenido.Anime;
@@ -13,6 +13,7 @@ import java.util.List;
 
 public class JsonUtilAnime extends JsonUtil {
 
+    // Método que convierte un objeto Anime a un JSONObject (Usado para el archivo Anime.json)
     @Override
     public JSONObject objectToJson(Object obj) {
         Anime anime = (Anime) obj;
@@ -31,6 +32,7 @@ public class JsonUtilAnime extends JsonUtil {
         return json;
     }
 
+    // Método modificado que convierte un objeto Anime a un JSONObject. (Usado para la lista personal)
     public JSONObject objectToJsonModificado(Object obj) {
         Anime anime = (Anime) obj;
         JSONObject json = new JSONObject();
@@ -45,6 +47,7 @@ public class JsonUtilAnime extends JsonUtil {
         return json;
     }
 
+    // Método estático que convierte una lista de objetos Anime a un JSONArray (Usado para Anime.json)
     public static JSONArray listToJson(List<Anime> animeList) {
         JSONArray jsonArray = new JSONArray();
 
@@ -67,6 +70,7 @@ public class JsonUtilAnime extends JsonUtil {
         return jsonArray;
     }
 
+    // Método estático que convierte una lista de objetos Anime a un JSONArray (Usado para la lista personal)
     public static JSONArray listToJsonUsuario(List<Anime> animeList) {
         JSONArray jsonArray = new JSONArray();
 
@@ -79,12 +83,13 @@ public class JsonUtilAnime extends JsonUtil {
             json.put("episodes", anime.getEpisodes());
             json.put("vistoONo", anime.getVistoONo());
 
-            jsonArray.put(json); // Agrega el JSON del anime al JSONArray
+            jsonArray.put(json);
         }
 
         return jsonArray;
     }
 
+    // Método que convierte un JSONObject en un objeto Anime.
     @Override
     public Object jsonToObject(JSONObject jsonObject) {
         int id = jsonObject.optInt("mal_id", jsonObject.optInt("id", 0));
@@ -97,19 +102,18 @@ public class JsonUtilAnime extends JsonUtil {
         int rank = jsonObject.optInt("rank", 0);
         String synopsis = jsonObject.optString("synopsis", "Sin sinopsis disponible");
 
-        // Verificar si el campo "vistoONo" está presente y es válido
-        String vistoONoString = jsonObject.optString("vistoONo", "NO_VISTO"); // Valor predeterminado
+        String vistoONoString = jsonObject.optString("vistoONo", "NO_VISTO");
         EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoString);
 
         return new Anime(id, members, popularity, rank, score, status, synopsis, title, vistoONo, episodes);
     }
 
+    //Método para crear un archivo Anime.json
     @Override
     public void crearArchivoPorDefecto() {
-        // Crear una instancia de GetManga para obtener los mangas desde la API
+
         GetAnime getAnime = new GetAnime();
 
-        // Obtener los mangas desde la API y guardarlos en el archivo "Manga.json"
         getAnime.obtenerYGuardarDataFiltrada("Anime.json");
     }
 
@@ -134,34 +138,26 @@ public class JsonUtilAnime extends JsonUtil {
             StringBuilder contenido = new StringBuilder();
             String linea;
 
-            // Leer el archivo línea por línea y acumular el contenido
             while ((linea = reader.readLine()) != null) {
                 contenido.append(linea);
             }
 
-            // Crear JSONArray a partir del contenido completo
             JSONArray jsonArray = new JSONArray(contenido.toString());
 
-            // Procesar cada elemento del JSONArray
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject animeJson = jsonArray.getJSONObject(i);
 
-                // Verificar y renombrar el campo "id" a "mal_id" si existe
                 if (animeJson.has("id") && !animeJson.has("mal_id")) {
                     animeJson.put("mal_id", animeJson.getInt("id"));
                 }
-
-                // Omitir el campo "images" si está presente
                 animeJson.remove("images");
 
-                // Convertir el JSONObject a un objeto Anime
                 Anime anime = (Anime) this.jsonToObject(animeJson);
                 listaDeAnimes.add(anime);
             }
         } catch (IOException e) {
             GestorExcepciones.manejarIOException(e);
         }
-
         return listaDeAnimes;
     }
 

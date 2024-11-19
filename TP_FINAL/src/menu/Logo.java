@@ -17,6 +17,7 @@ public class Logo {
         System.out.println(GREEN + "  ██║╚██╔╝██║███║         ██╔══██║██║╚██╗██║██║██║╚██╔╝██║██╔══╝       ██║     ██║╚════██║   ██║   ");
         System.out.println(RED + "  ██║ ╚═╝ ██║╚██╔╝        ██║  ██║██║ ╚████║██║██║ ╚═╝ ██║███████╗     ███████╗██║███████║   ██║   ");
         System.out.println(BLUE + "  ╚═╝     ╚═╝ ╚═╝         ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚═╝     ╚═╝╚══════╝     ╚══════╝╚═╝╚══════╝   ╚═╝   " + RESET);
+        System.out.println("Tu mundo otaku, organizado a tu manera.");
     }
 
 

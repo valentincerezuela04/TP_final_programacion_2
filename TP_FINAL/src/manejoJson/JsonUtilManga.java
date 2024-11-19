@@ -1,7 +1,6 @@
-package manejo_json;
+package manejoJson;
 
 import api.GetManga;
-import contenido.Anime;
 import contenido.Manga;
 import contenido.EstadoVisto;
 import gestores.GestorExcepciones;
@@ -18,6 +17,7 @@ import java.util.List;
 public class JsonUtilManga extends JsonUtil {
 
 
+    //Método para convertir un objeto Manga a un JSONObject (Usado para Manga.json)
     @Override
     public JSONObject objectToJson(Object obj) {
         Manga manga = (Manga) obj;
@@ -37,6 +37,7 @@ public class JsonUtilManga extends JsonUtil {
         return json;
     }
 
+    //Método para convertir un objeto Manga a un JSONObject (Usado para la lista personal)
     public JSONObject objectToJsonModificado(Object obj) {
         Manga manga = (Manga) obj;
         JSONObject json = new JSONObject();
@@ -52,9 +53,9 @@ public class JsonUtilManga extends JsonUtil {
         return json;
     }
 
+    //Método para convertir un JSONObject en un objeto Manga
     @Override
     public Object jsonToObject(JSONObject jsonObject) {
-        // Obtener datos desde el JSON con valores predeterminados
         int id = jsonObject.optInt("mal_id", jsonObject.optInt("id", 0));
         String title = jsonObject.getString("title");
         double score = jsonObject.optDouble("score", 0.0);
@@ -66,32 +67,27 @@ public class JsonUtilManga extends JsonUtil {
         int rank = jsonObject.optInt("rank", 0);
         String synopsis = jsonObject.optString("synopsis", "Sin sinopsis disponible");
 
-// Verificar si el campo "vistoONo" está presente y es válido
-        String vistoONoString = jsonObject.optString("vistoONo", "NO_VISTO"); // Valor predeterminado
+        String vistoONoString = jsonObject.optString("vistoONo", "NO_VISTO");
         EstadoVisto vistoONo = EstadoVisto.valueOf(vistoONoString);
 
-        // Crear y devolver el objeto Manga con los datos extraídos
         return new Manga(id, members, popularity, rank, score, status, synopsis, title, vistoONo, chapters, volumes);
     }
 
+    // Método para crear un archivo Manga.json
     @Override
     public void crearArchivoPorDefecto() {
-        // Crear una instancia de GetManga para obtener los mangas desde la API
         GetManga getManga = new GetManga();
 
-        // Obtener los mangas desde la API y guardarlos en el archivo "Manga.json"
         getManga.obtenerYGuardarDataFiltrada("Manga.json");
     }
 
-
-    // para guardarListaAnimeEnArchivo(que se utiliza en la clase de api del manga)
+    // Método para convertir una lista de objetos Manga a un JSONArray (Usado para Manga.json)
     public static JSONArray listToJson(List<Manga> mangaList) {
         JSONArray jsonArray = new JSONArray();
 
         for (Manga manga : mangaList) {
             JSONObject json = new JSONObject();
 
-            // Campos heredados de Contenido
             json.put("id", manga.getId());
             json.put("title", manga.getTitle());
             json.put("score", manga.getScore());
@@ -109,6 +105,7 @@ public class JsonUtilManga extends JsonUtil {
         return jsonArray;
     }
 
+    // Método para convertir una lista de objetos Manga a un JSONArray (Usado para la lista personal)
     public static JSONArray listToJsonUsuario(List<Manga> mangaList) {
         JSONArray jsonArray = new JSONArray();
 
@@ -122,7 +119,7 @@ public class JsonUtilManga extends JsonUtil {
             json.put("chapters", manga.getChapters());
             json.put("vistoONo", manga.getVistoONo());
 
-            jsonArray.put(json); // Agrega el JSON del manga al JSONArray
+            jsonArray.put(json);
         }
 
         return jsonArray;
@@ -130,17 +127,17 @@ public class JsonUtilManga extends JsonUtil {
 
     // Método para escribir el objeto Manga en un archivo usando JsonUtilManga
     public static void guardarListaMangaEnArchivo(List<Manga> manga, String archivoDestino) {
-        // Usar la clase JsonUtilManga para convertir el objeto Anime a JSON
-        JSONArray mangaJson = JsonUtilManga.listToJson(manga);  // Convertir el objeto Manga a JSON
+        JSONArray mangaJson = JsonUtilManga.listToJson(manga);
 
-        try (FileWriter file = new FileWriter(archivoDestino, false)) {  // "false" para añadir sin sobrescribir
-            file.write(mangaJson.toString(4));  // Escribir el JSON con indentación de 4 espacios
+        try (FileWriter file = new FileWriter(archivoDestino, false)) {
+            file.write(mangaJson.toString(4));
             file.flush();
         } catch (IOException e) {
             GestorExcepciones.manejarIOException(e);
         }
     }
 
+    // Método para cargar una lista de mangas desde un archivo JSON
     public List<Manga> cargarMangasDesdeArchivo(String archivoOrigen) {
         List<Manga> listaDeMangas = new ArrayList<>();
 
@@ -148,38 +145,31 @@ public class JsonUtilManga extends JsonUtil {
             StringBuilder contenido = new StringBuilder();
             String linea;
 
-            // Leer el archivo línea por línea y acumular el contenido
             while ((linea = reader.readLine()) != null) {
                 contenido.append(linea);
             }
 
-            // Crear JSONArray a partir del contenido completo
             JSONArray mangasArray = new JSONArray(contenido.toString());
 
-            // Procesar cada elemento del JSONArray
             for (int i = 0; i < mangasArray.length(); i++) {
                 JSONObject mangaJson = mangasArray.getJSONObject(i);
 
-                // Verificar y renombrar el campo "id" a "mal_id" si existe
                 if (mangaJson.has("id") && !mangaJson.has("mal_id")) {
                     mangaJson.put("mal_id", mangaJson.getInt("id"));
                 }
 
-                // Omitir el campo "images" si está presente
                 mangaJson.remove("images");
 
-                // Convertir el JSONObject a un objeto Manga
                 Manga manga = (Manga) new JsonUtilManga().jsonToObject(mangaJson);
                 listaDeMangas.add(manga);
             }
         } catch (IOException e) {
             GestorExcepciones.manejarIOException(e);
         }
-
         return listaDeMangas;
     }
 
-
+    // Método para mostrar en consola la lista de mangas cargados desde un archivo
     public void mostrarMangasConsola(String archivoDestino) {
         List<Manga> listaDeMangas = cargarMangasDesdeArchivo(archivoDestino);
 

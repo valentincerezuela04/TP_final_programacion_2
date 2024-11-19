@@ -108,6 +108,7 @@ public abstract class Contenido {
         this.vistoONo = vistoONo;
     }
 
+    //Metodo abstracto para implementar en las clases Anime y Manga
     public abstract void visto_o_no();
 
     @Override

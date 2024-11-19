@@ -4,8 +4,7 @@ import menu.Menu;
 public class Main {
     public static void main(String[] args) {
         Logo.main(args);
-    Menu menu = new Menu();
-    menu.menuPrincipal();
-
+        Menu menu = new Menu();
+        menu.menuPrincipal();
     }
 }

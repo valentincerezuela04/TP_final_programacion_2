@@ -1,6 +1,5 @@
 package admin;
 
-import contenido.EstadoVisto;
 import gestores.GestorExcepciones;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,34 +8,31 @@ import org.json.JSONTokener;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Scanner;
 
-public class GestorAdminAnime extends  GestorAdmin{
+public class GestorAdminAnime extends GestorAdmin {
     public static final String PATH_ANIME = "Anime.json";
 
     public GestorAdminAnime() {
         super(PATH_ANIME);
     }
 
+    // Método para crear un nuevo anime en el archivo JSON
     @Override
     public void crear() {
-
         JSONObject nuevoAnime = new JSONObject();
         nuevoAnime = cargarDatos();
 
-        // Leer el archivo JSON existente o crear uno nuevo si no existe
         try {
             JSONArray contenidos;
             try (FileReader reader = new FileReader(PATH_ANIME)) {
                 JSONTokener tokener = new JSONTokener(reader);
-                contenidos = new JSONArray(tokener); // Leer contenido si es válido
+                contenidos = new JSONArray(tokener);
             } catch (IOException e) {
                 GestorExcepciones.manejarIOException(e);
-                contenidos = new JSONArray(); // Inicializar un JSONArray vacío
+                contenidos = new JSONArray();
             }
 
-            // Verificar si el anime ya existe
             boolean existe = false;
             for (int i = 0; i < contenidos.length(); i++) {
                 JSONObject animeExistente = contenidos.getJSONObject(i);
@@ -47,23 +43,23 @@ public class GestorAdminAnime extends  GestorAdmin{
             }
 
             if (!existe) {
-                contenidos.put(nuevoAnime); // Agregar el nuevo anime
+                contenidos.put(nuevoAnime);
                 try (FileWriter writer = new FileWriter(PATH_ANIME)) {
-                    writer.write(contenidos.toString(4)); // Guardar el contenido actualizado
+                    writer.write(contenidos.toString(4));
                     System.out.println("El anime ha sido creado exitosamente.");
                 }
             } else {
                 System.out.println("El anime ya existe en la base de datos.");
             }
         } catch (Exception e) {
-           GestorExcepciones.manejarExcepcion(e);
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
-
+    // Método para cargar los datos de un nuevo anime desde la entrada del usuario
+    // Devuelve un objeto JSON con los datos del nuevo anime
     @Override
     public JSONObject cargarDatos() {
-
         String titulo = ValidacionDatos.obtenerString("Ingrese el título del anime: ");
         int popularidad = ValidacionDatos.obtenerEnteros("Ingrese la popularidad: ");
         int rank = ValidacionDatos.obtenerEnteros("Ingrese el ranking: ");
@@ -73,8 +69,6 @@ public class GestorAdminAnime extends  GestorAdmin{
         String status = ValidacionDatos.obtenerString("Ingrese el estado: ");
         String synopsis = ValidacionDatos.obtenerString("Ingrese la sinopsis: ");
 
-
-        // Construir el objeto JSON en el orden especificado
         JSONObject nuevoAnime = new JSONObject();
         nuevoAnime.put("score", score);
         nuevoAnime.put("members", members);
@@ -86,31 +80,25 @@ public class GestorAdminAnime extends  GestorAdmin{
         nuevoAnime.put("episodes", episodes);
         nuevoAnime.put("status", status);
 
-        return  nuevoAnime;
+        return nuevoAnime;
     }
 
+    // Método para actualizar los datos de un anime existente en el archivo JSON
     @Override
     public void actualizar() {
         Scanner scanner = new Scanner(System.in);
-
-        // Solicitar el ID del objeto a actualizar
         System.out.print("Ingrese el ID del anime que desea actualizar: ");
         int id = scanner.nextInt();
-        scanner.nextLine(); // Limpiar el buffer
+        scanner.nextLine();
 
         try {
-            // Leer el archivo JSON
             JSONArray contenidos;
             try (FileReader reader = new FileReader(PATH_ANIME)) {
                 JSONTokener tokener = new JSONTokener(reader);
                 contenidos = new JSONArray(tokener);
             }
 
-            // Buscar el objeto con el ID especificado
             JSONObject animeExistente = null;
-
-            //el -1 es una forma de no se agreguen los datos al Jsonobject si es q
-            //no se encontro el anime en el archivo
             int indice = -1;
 
             for (int i = 0; i < contenidos.length(); i++) {
@@ -127,7 +115,6 @@ public class GestorAdminAnime extends  GestorAdmin{
                 return;
             }
 
-            // Actualizar los datos del anime
             actualizarDatosAnime(animeExistente);
 
             contenidos.put(indice, animeExistente);
@@ -139,14 +126,12 @@ public class GestorAdminAnime extends  GestorAdmin{
         } catch (IOException e) {
             GestorExcepciones.manejarIOException(e);
         } catch (Exception e) {
-           GestorExcepciones.manejarExcepcion(e);
+            GestorExcepciones.manejarExcepcion(e);
         }
     }
 
-
+    // Método para actualizar los datos de un anime existente
     public void actualizarDatosAnime(JSONObject animeExistente) {
-        // Actualizamos los datos en el objeto JSON
-
         String titulo = ValidacionDatos.obtenerString("Ingrese el título del anime: ");
         int popularidad = ValidacionDatos.obtenerEnteros("Ingrese la popularidad: ");
         int rank = ValidacionDatos.obtenerEnteros("Ingrese el ranking: ");
@@ -156,7 +141,6 @@ public class GestorAdminAnime extends  GestorAdmin{
         String status = ValidacionDatos.obtenerString("Ingrese el estado: ");
         String synopsis = ValidacionDatos.obtenerString("Ingrese la sinopsis: ");
 
-        // Actualizamos el objeto JSON con los nuevos datos
         animeExistente.put("title", titulo);
         animeExistente.put("popularity", popularidad);
         animeExistente.put("rank", rank);

@@ -22,7 +22,7 @@ public class GestorExcepciones {
     public static void manejarContrasenasNoCoinciden(ContrasenasNoCoincidenException e) {
         manejarExcepcionGenerica(e, "Error en las contraseñas: ");
     }
-
+    //Metodo para manejar la excepción de inicio de sesión
     public static void manejarLoginException(LoginException e) {
         manejarExcepcionGenerica(e, "Error de inicio de sesión: ");
     }
@@ -32,22 +32,27 @@ public class GestorExcepciones {
         manejarExcepcionGenerica(e, "Error de usuario repetido: ");
     }
 
+    // Método para manejar excepciones de usuario no encontrado, llamando a la función genérica para manejar la excepción.
     public static void manejarUsuarioNoEncontrado(UsuarioNoEncontradoException e) {
         manejarExcepcionGenerica(e, "Error de usuario no encontrado: ");
     }
 
+    // Método para manejar excepciones de contenido no encontrado, llamando a la función genérica para manejar la excepción.
     public static void manejarContenidoNoEncontrado(ContenidoNoEncontradoException e) {
         manejarExcepcionGenerica(e, "Error: ");
     }
 
+    // Método para manejar excepciones de contenido duplicado, llamando a la función genérica para manejar la excepción.
     public static void manejarContenidoDuplicado(ContenidoDuplicadoException e) {
         manejarExcepcionGenerica(e, "Error: ");
     }
 
+    // Método para manejar excepciones de estado repetido, llamando a la función genérica para manejar la excepción.
     public static void manejarEstadoRepetidoException(EstadoRepetidoException e) {
         manejarExcepcionGenerica(e, "Error de estado repetido: ");
     }
 
+    // Método para manejar excepciones de tipo IllegalArgumentException, llamando a la función genérica para manejar la excepción.
     public static void manejarIllegalArgumentException(IllegalArgumentException e) {
         manejarExcepcionGenerica(e, "Error: ");
     }
@@ -62,6 +67,7 @@ public class GestorExcepciones {
         manejarExcepcionGenerica(e, "Error general: ");
     }
 
+    // Método para manejar excepciones relacionadas con las peticiones API, llamando a la función genérica para manejar la excepción.
     public static void manejarPeticionApiException(PeticionApiException e) {
         manejarExcepcionGenerica(e, "Error en la petición API: ");
     }
