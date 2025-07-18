@@ -1,12 +1,17 @@
 package menu;
 
+
 import api.GetAnime;
 import api.GetManga;
+=======
+import admin.MenuAdmin;
+
 import contenido.Anime;
 import contenido.EstadoVisto;
 import contenido.Manga;
 import excepciones.ContrasenaInvalidaException;
 import excepciones.EmailInvalidoException;
+import manejo_json.JsonUtilManga;
 import manejo_json.JsonUtilUsuario;
 import usuario.Usuario;
 
@@ -52,8 +57,46 @@ public class Main {
 //        getManga.obtenerYGuardarDataFiltrada("pruebaManga.json");
 //        JsonUtilManga jsonUtilManga = new JsonUtilManga();
 //        jsonUtilManga.mostrarMangasConsola("pruebaManga.json");
-        Menu menu = new Menu();
-       menu.menuPrincipal();
+//        Menu menu = new Menu();
+//       menu.menuPrincipal();
+
+
+        //ADMIN:
+        //------------------------------------------------------------
+
+//        GetAnime getAnime = new GetAnime();
+//        getAnime.obtenerYGuardarDataFiltrada("Animes.json");
+//        JsonUtilAnime jsonUtilAnime = new JsonUtilAnime();
+////        jsonUtilAnime.mostrarAnimesConsola("Animes.json");
+//
+////        GetManga getManga = new GetManga();
+////        getManga.obtenerYGuardarDataFiltrada("Mangas.json");
+//        JsonUtilManga jsonUtilManga = new JsonUtilManga();
+////        jsonUtilManga.mostrarMangasConsola("Mangas.json");
+//
+//        GestorAdminAnime gestoranime = new GestorAdminAnime();
+//        GestorAdminManga gestormanga =  new GestorAdminManga();
+//        gestoranime.crear();
+//        gestoranime.eliminar_por_titulo("dororo");
+//        gestoranime.eliminar_por_id(1643164962);
+//
+//        gestoranime.actualizar();
+//        jsonUtilAnime.mostrarAnimesConsola("Animes.json");
+//          gestormanga.crear();
+//          jsonUtilManga.mostrarMangasConsola("Mangas.json");
+//          gestormanga.actualizar();
+//          jsonUtilManga.mostrarMangasConsola("Mangas.json");
+
+
+
+//        gestormanga.eliminar_por_titulo("berserk");
+//
+//        jsonUtilAnime.mostrarAnimesConsola("Animes.json");
+
+        MenuAdmin.main(args);
+
+
+        //---------------------------------------------
 
 
 //        System.out.println(Consumiendo_api.getAnime());
