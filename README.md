@@ -280,7 +280,7 @@ This project is developed as part of an academic assignment for Programming 2 at
 ## 👥 Authors
 
 - **Pablo** - Development and implementation
-- **Valentín Cerezuela** - Project collaboration
+- **Valentín Cerezuela** - Development and implementation
 
 ## 🔗 Links
 
